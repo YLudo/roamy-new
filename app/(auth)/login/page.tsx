@@ -1,10 +1,53 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { LoginSchema } from "@/schemas/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+    const form = useForm<z.infer<typeof LoginSchema>>({
+        resolver: zodResolver(LoginSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    });
+
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+        startTransition(async () => {
+            const { email, password } = values;
+
+            try {
+                const response = await signIn("credentials", {
+                    email, password, redirect: false
+                });
+
+                if (response?.error) {
+                    throw new Error(response.error);
+                }
+
+                toast.success("Connexion réussie !", { description: "Vous vous êtes connecté avec succès." });
+                router.push("/");
+            } catch (error: any) {
+                toast.error("Connexion échouée !", { description: error.message || "Une erreur s'est produite lors de la connexion." });
+            }
+        });
+    }
+
     return (
         <div className="flex flex-col gap-6">
             <Card>
@@ -32,28 +75,42 @@ export default function LoginPage() {
                                 Ou continuez avec
                             </span>
                         </div>
-                        <div className="grid gap-6">
-                            <div className="grid gap-3">
-                                <Label htmlFor="email">Adresse e-mail</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="votre@adresse.com"
-                                    required
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Adresse e-mail</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Entrez votre adresse e-mail" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="password">Mot de passe</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    required
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mot de passe</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" placeholder="Entrez votre mot de passe" {...field} />         
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <Button type="submit" className="w-full">
-                                Se connecter
-                            </Button>
-                        </div>
+                                <Button disabled={isPending} type="submit" className="w-full">
+                                    {isPending 
+                                        ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        : "Se connecter"
+                                    }
+                                </Button>
+                            </form>
+                        </Form>
                         <div className="text-center text-sm">
                             Vous n'avez pas de compte ?{" "}
                             <Link href="/register" className="underline underline-offset-4">

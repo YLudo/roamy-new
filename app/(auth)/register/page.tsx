@@ -1,10 +1,58 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { RegisterSchema } from "@/schemas/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 export default function RegisterPage() {
+    const form = useForm<z.infer<typeof RegisterSchema>>({
+        resolver: zodResolver(RegisterSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            password: "",
+        },
+    });
+
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
+        startTransition(async () => {
+            const { name, email, password } = values;
+
+            try {
+                const response = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                }
+
+                toast.success("Inscription réussie !", { description: result.message });
+                router.push("/login");
+            } catch (error: any) {
+                toast.error("Inscription échouée !", { description: error.message });
+            }
+        });
+    }
+
     return (
         <div className="flex flex-col gap-6">
             <Card>
@@ -32,37 +80,55 @@ export default function RegisterPage() {
                                 Ou continuez avec
                             </span>
                         </div>
-                        <div className="grid gap-6">
-                            <div className="grid gap-3">
-                                <Label htmlFor="name">Nom d'utilisateur</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    placeholder="John Doe"
-                                    required
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nom d'utilisateur</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Entrez votre nom d'utilisateur" {...field} />         
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="email">Adresse e-mail</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="votre@adresse.com"
-                                    required
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Adresse e-mail</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Entrez votre adresse e-mail" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div className="grid gap-3">
-                                <Label htmlFor="password">Mot de passe</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    required
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mot de passe</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" placeholder="Entrez votre mot de passe" {...field} />         
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <Button type="submit" className="w-full">
-                                S'inscrire
-                            </Button>
-                        </div>
+                                <Button disabled={isPending} type="submit" className="w-full">
+                                    {isPending 
+                                        ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        : "S'inscrire"
+                                    }
+                                </Button>
+                            </form>
+                        </Form>
                         <div className="text-center text-sm">
                             Vous avez déjà un compte ?{" "}
                             <Link href="/login" className="underline underline-offset-4">
