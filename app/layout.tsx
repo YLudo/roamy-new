@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import Provider from "@/providers/provider";
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -27,8 +28,10 @@ export default function RootLayout({
                     fontSans.variable
                 )}
             >
-                {children}
-                <Toaster />
+                <Provider>
+                    {children}
+                    <Toaster />
+                </Provider>
             </body>
         </html>
     );
