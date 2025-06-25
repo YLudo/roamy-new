@@ -52,6 +52,30 @@ export async function POST(request: Request) {
             { status: 201 },
         )
     } catch (error) {
-        return NextResponse.json({ message: "Erreur interne du serveur." }, { status: 500 });
+        return NextResponse.json({ message: "Erreur lors de la création du voyage." }, { status: 500 });
+    }
+}
+
+export async function GET(request: Request) {
+    try {
+        const session = await getServerSession(authOptions);
+         if (!session || !session.user.id) {
+            return NextResponse.json(
+                { message: "Votre session a expiré. Veuillez vous reconnecter." },
+                { status: 401 },
+            );
+        }
+
+        const travels = await prisma.trip.findMany({
+            where: { createdBy: session.user.id },
+            orderBy: { startDate: "desc" },
+        });
+
+        return NextResponse.json(
+            travels,
+            { status: 200 },
+        )
+    } catch (error) {
+        return NextResponse.json({ message: "Erreur lors de la récupération des voyages." }, { status: 500 });
     }
 }

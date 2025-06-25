@@ -4,18 +4,43 @@ import { Bell, LogOut, Plane, Settings, User } from "lucide-react";
 import Link from "next/link";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useRef } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreateTripStepper from "@/components/application/trips/create-trip-stepper";
+import TripsList from "@/components/application/trips/trips-list";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
 
+    const [travels, setTravels] = useState([]);
+
+    const [isPending, startTransition] = useTransition();
+
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const fetchTravels = useCallback(() => {
+        startTransition(async () => {
+            const response = await fetch("/api/travels", {
+                method: "GET",
+            });
+
+            if (!response.ok) {
+                toast("Oups !", { description: "Erreur lors de la récupération de vos voyages." });
+            }
+
+            const data = await response.json();
+            setTravels(data);
+        });
+    }, []);
+
+    useEffect(() => {
+        fetchTravels();
+    }, [fetchTravels]);
 
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
@@ -56,20 +81,12 @@ export default function DashboardPage() {
                 </div>
                 <h1 className="text-2xl font-bold text-foreground">Bonjour, <span className="text-primary">{session?.user.name}</span></h1>
                 <div className="flex-1">
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl text-foreground font-medium">Mes voyages</h2>
                             <CreateTripStepper />
                         </div>
-                        <div className="text-center py-12 px-6 bg-muted rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors">
-                            <div className="flex flex-col items-center space-y-2">
-                                <Plane className="size-8 text-primary" />
-                                <div className="space-y-2">
-                                    <h3 className="text font-semibold text-foreground">Aucun voyage planifié</h3>
-                                    <p className="text-sm text-muted-foreground">Commencez votre aventure en créant votre premier voyage !</p>
-                                </div>
-                            </div>
-                        </div>
+                        <TripsList isLoading={isPending} travels={travels} />
                     </div>
                 </div>
                 <div className="flex items-center justify-between mt-auto pt-6 border-t">

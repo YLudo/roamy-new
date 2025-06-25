@@ -56,12 +56,12 @@ export default function CreateTripStepper() {
                     throw new Error(result.message || "Une erreur inconnue s'est produite.");
                 }
 
-                toast.success("Connexion réussie !", { description: result.message });
+                toast.success("Voyage créé !", { description: result.message });
                 setOpen(false);
                 form.reset();
                 setStep(0);
             } catch (error: any) {
-                toast.error("Connexion échouée !", { description: error.message || "Une erreur s'est produite lors de la connexion." });
+                toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de la création du voyage." });
             }
         });
     }
