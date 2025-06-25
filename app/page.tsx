@@ -4,7 +4,7 @@ import { Bell, LogOut, Plane, Settings, User } from "lucide-react";
 import Link from "next/link";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -16,8 +16,6 @@ export default function DashboardPage() {
 
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
-
-     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
