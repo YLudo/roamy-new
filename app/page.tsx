@@ -1,21 +1,23 @@
 "use client";
 
-import { Bell, LogOut, Plane, Plus, Settings, User } from "lucide-react";
+import { Bell, LogOut, Plane, Settings, User } from "lucide-react";
 import Link from "next/link";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CreateTripStepper from "@/components/application/trips/create-trip-stepper";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
-    console.log(session);
 
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
@@ -59,10 +61,7 @@ export default function DashboardPage() {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl text-foreground font-medium">Mes voyages</h2>
-                            <Button className="mt-4">
-                                <Plus className="size-4" />
-                                Créer un voyage
-                            </Button>
+                            <CreateTripStepper />
                         </div>
                         <div className="text-center py-12 px-6 bg-muted rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors">
                             <div className="flex flex-col items-center space-y-2">
