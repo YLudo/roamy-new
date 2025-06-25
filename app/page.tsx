@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreateTripStepper from "@/components/application/trips/create-trip-stepper";
 import TripsList from "@/components/application/trips/trips-list";
 import { toast } from "sonner";
+import { pusherClient } from "@/lib/pusher";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -41,6 +42,22 @@ export default function DashboardPage() {
     useEffect(() => {
         fetchTravels();
     }, [fetchTravels]);
+
+    useEffect(() => {
+        if (!session?.user.id) return;
+
+        const channelName = `user-${session?.user.id}`;
+        const channel = pusherClient.subscribe(channelName);
+
+        channel.bind("travels:new", () => {
+            fetchTravels();
+        });
+
+        return () => {
+            pusherClient.unbind_all();
+            pusherClient.unsubscribe(channelName);
+        }
+    }, [fetchTravels, session?.user.id]);
 
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
