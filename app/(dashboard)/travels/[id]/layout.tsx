@@ -41,7 +41,7 @@ export default function TravelLayout({ children }: TravelLayoutProps) {
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <header className="flex h-16 items-center gap-2 px-4 border-b">
+                <header className="flex h-16 items-center gap-2 px-4">
                     <SidebarTrigger className="-ml-1" />
                     <Breadcrumb>
                         <BreadcrumbList>
