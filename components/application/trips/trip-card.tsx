@@ -18,7 +18,7 @@ const visibilityConfig = {
   private: { label: "Privé", icon: Eye },
 }
 
-export default function TripCard({ trip }) {
+export default function TripCard({ trip }: { trip: ITravel}) {
     const formatDate = (date?: Date) => {
         if (!date) return null
         return new Intl.DateTimeFormat("fr-FR", {
@@ -33,17 +33,6 @@ export default function TripCard({ trip }) {
             return `${trip.destinationCity}, ${trip.destinationCountry}`
         }
         return trip.destinationCountry || trip.destinationCity || "Destination non définie"
-    }
-
-    const getDuration = () => {
-        if (trip.startDate && trip.endDate) {
-            const start = new Date(trip.startDate)
-            const end = new Date(trip.endDate)
-            const diffTime = Math.abs(end.getTime() - start.getTime())
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-            return `${diffDays} jour${diffDays > 1 ? "s" : ""}`
-        }
-        return null
     }
 
     const VisibilityIcon = visibilityConfig[trip.visibility].icon
@@ -62,33 +51,28 @@ export default function TripCard({ trip }) {
                         {statusConfig[trip.status].label}
                     </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                            <span className="font-medium truncate">{getDestination()}</span>
-                        </div>
-                        {(trip.startDate || trip.endDate) && (
-                            <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                    <span className="whitespace-nowrap">
-                                        {trip.startDate && formatDate(trip.startDate)}
-                                        {trip.startDate && trip.endDate && " - "}
-                                        {trip.endDate && formatDate(trip.endDate)}
-                                    </span>
-                                    {getDuration() && (
-                                        <Badge variant="outline">{getDuration()}</Badge>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <VisibilityIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                            <span className="truncate">{visibilityConfig[trip.visibility].label}</span>
-                        </div>
+                <div className="flex flex-col sm:flex-row flex-wrap sm:items-center gap-3 sm:gap-6 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="font-medium truncate">{getDestination()}</span>
                     </div>
-                    <Link href={`/travels/${trip.id}`} className={buttonVariants()}>Voir le voyage</Link>
+                    {(trip.startDate || trip.endDate) && (
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 whitespace-nowrap">
+                                {trip.startDate && formatDate(trip.startDate)}
+                                {trip.startDate && trip.endDate && " - "}
+                                {trip.endDate && formatDate(trip.endDate)}
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                        <VisibilityIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="truncate">{visibilityConfig[trip.visibility].label}</span>
+                    </div>
+                </div>
+                <div className="flex justify-end">
+                    <Link href={`/travels/${trip.id}`} className={`w-full sm:w-auto ${buttonVariants()}`}>Voir le voyage</Link>
                 </div>
             </CardContent>
         </Card>

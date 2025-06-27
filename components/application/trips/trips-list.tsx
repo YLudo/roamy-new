@@ -2,7 +2,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plane } from "lucide-react";
 import TripCard from "./trip-card";
 
-export default function TripsList({ isLoading, travels }) {
+interface TripsListProps {
+    isLoading: boolean;
+    travels: ITravel[];
+}
+
+export default function TripsList({ isLoading, travels }: TripsListProps) {
     if (isLoading) {
         return <Skeleton className="h-[200px] w-full rounded-xl" />
     }
