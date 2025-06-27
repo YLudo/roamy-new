@@ -4,40 +4,22 @@ import { Bell, LogOut, Plane, Settings, User } from "lucide-react";
 import Link from "next/link";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreateTripStepper from "@/components/application/trips/create-trip-stepper";
 import TripsList from "@/components/application/trips/trips-list";
-import { toast } from "sonner";
 import { pusherClient } from "@/lib/pusher";
+import { useTravelStore } from "@/stores/travel-store";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
-
-    const [travels, setTravels] = useState([]);
-
-    const [isPending, startTransition] = useTransition();
+    const { travels, fetchTravels, isLoading } = useTravelStore();
 
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
-
-    const fetchTravels = useCallback(() => {
-        startTransition(async () => {
-            const response = await fetch("/api/travels", {
-                method: "GET",
-            });
-
-            if (!response.ok) {
-                toast("Oups !", { description: "Erreur lors de la récupération de vos voyages." });
-            }
-
-            const data = await response.json();
-            setTravels(data);
-        });
-    }, []);
 
     useEffect(() => {
         fetchTravels();
@@ -103,7 +85,7 @@ export default function DashboardPage() {
                             <h2 className="text-xl text-foreground font-medium">Mes voyages</h2>
                             <CreateTripStepper />
                         </div>
-                        <TripsList isLoading={isPending} travels={travels} />
+                        <TripsList isLoading={isLoading} travels={travels} />
                     </div>
                 </div>
                 <div className="flex items-center justify-between mt-auto pt-6 border-t">

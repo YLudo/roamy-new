@@ -7,24 +7,12 @@ import { getMenuList } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import NavMain from "./nav-main";
 import TravelSwitcher from "./travel-switcher";
-
-const data = {
-    travels: [
-        {
-            title: "RoadTrip USA",
-            destination_country: "USA",
-            destination_city: "",
-        },
-        {
-            title: "Monaco",
-            destination_country: "",
-            destination_city: "Monaco",
-        }
-    ]
-}
+import { useTravelStore } from "@/stores/travel-store";
 
 export default function AppSidebar() {
     const { data: session } = useSession();
+
+    const { travels } = useTravelStore();
 
     const pathname = usePathname();
     const menuList = getMenuList(pathname);
@@ -32,7 +20,7 @@ export default function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
-                <TravelSwitcher travels={data.travels} />
+                <TravelSwitcher travels={travels} />
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={menuList} />

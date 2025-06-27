@@ -1,16 +1,28 @@
+"use client";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, ChevronsUpDown, Plane } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function TravelSwitcher({
     travels
+}: {
+    travels: ITravel[];
 }) {
     const { isMobile } = useSidebar();
-    const [activeTravel, setActiveTravel] = useState(travels[0]);
+    const pathname = usePathname();
+    const router = useRouter();
 
-    if (!activeTravel) return null;
+    const activeTravel = travels.find((travel) =>
+        pathname.includes(`/travels/${travel.id}`)
+    );
+
+    if (!activeTravel) {
+        return <Skeleton className="w-full h-12" />
+    }
 
     return (
         <SidebarMenu>
@@ -42,15 +54,15 @@ export default function TravelSwitcher({
                         {travels.map((travel, index) => (
                             <DropdownMenuItem
                                 key={index}
-                                onClick={() => setActiveTravel(travel)}
+                                onClick={() => router.push(`/travels/${travel.id}`)}
                                 className="cursor-pointer p-2"
                             >
                                 {travel.title}
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-2">
-                            <Link href="/" className="flex items-center gap-2">
+                        <DropdownMenuItem className="cursor-pointer p-2">
+                            <Link href="/" className="flex items-center gap-2 w-full">
                                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                                     <ArrowLeft className="size-4" />
                                 </div>
