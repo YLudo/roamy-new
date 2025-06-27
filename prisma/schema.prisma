@@ -1,24 +1,25 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id String @id @default(uuid())
-    name String @unique
-    email String @unique
-    emailVerified DateTime?
-    image String?
-    password String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id            String    @id @default(uuid())
+  name          String    @unique
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-    accounts Account[]
-    activateTokens ActivateToken[]
+  accounts       Account[]
+  activateTokens ActivateToken[]
+  trips          Trip[]
 }
 
 model Account {
@@ -36,9 +37,9 @@ model Account {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  @@id([provider, providerAccountId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([provider, providerAccountId])
 }
 
 model ActivateToken {
@@ -50,4 +51,35 @@ model ActivateToken {
   updatedAt   DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Trip {
+  id                 String         @id @default(uuid())
+  title              String
+  description        String?
+  destinationCountry String?
+  destinationCity    String?
+  startDate          DateTime?
+  endDate            DateTime?
+  status             TripStatus     @default(planning)
+  visibility         TripVisibility @default(participants_only)
+  createdBy          String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+enum TripStatus {
+  planning
+  confirmed
+  ongoing
+  completed
+  cancelled
+}
+
+enum TripVisibility {
+  private
+  participants_only
+  public
 }

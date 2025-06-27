@@ -9,13 +9,37 @@ import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CreateTripStepper from "@/components/application/trips/create-trip-stepper";
+import TripsList from "@/components/application/trips/trips-list";
+import { pusherClient } from "@/lib/pusher";
+import { useTravelStore } from "@/stores/travel-store";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
-    console.log(session);
+    const { travels, fetchTravels, isLoading } = useTravelStore();
 
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        fetchTravels();
+    }, [fetchTravels]);
+
+    useEffect(() => {
+        if (!session?.user.id) return;
+
+        const channelName = `user-${session?.user.id}`;
+        const channel = pusherClient.subscribe(channelName);
+
+        channel.bind("travels:new", () => {
+            fetchTravels();
+        });
+
+        return () => {
+            pusherClient.unbind_all();
+            pusherClient.unsubscribe(channelName);
+        }
+    }, [fetchTravels, session?.user.id]);
 
     useEffect(() => {
         if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
@@ -56,9 +80,14 @@ export default function DashboardPage() {
                 </div>
                 <h1 className="text-2xl font-bold text-foreground">Bonjour, <span className="text-primary">{session?.user.name}</span></h1>
                 <div className="flex-1">
-                    
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl text-foreground font-medium">Mes voyages</h2>
+                            <CreateTripStepper />
+                        </div>
+                        <TripsList isLoading={isLoading} travels={travels} />
+                    </div>
                 </div>
-
                 <div className="flex items-center justify-between mt-auto pt-6 border-t">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
