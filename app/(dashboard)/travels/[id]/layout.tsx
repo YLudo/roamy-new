@@ -11,29 +11,31 @@ import { toast } from "sonner";
 
 interface TravelLayoutProps {
     children: ReactNode;
-    breadcrumbs?: ReactNode;
 }
 
 export default function TravelLayout({ children }: TravelLayoutProps) {
+    const router = useRouter();
     const params = useParams();
     const travelId = params?.id as string;
-    const { travels, fetchTravels, setCurrentTravel } = useTravelStore();
-    const router = useRouter();
+
+    const {
+        travels,
+        fetchTravels,
+        fetchCurrentTravel,
+    } = useTravelStore();
 
     useEffect(() => {
         fetchTravels();
     }, [fetchTravels]);
 
     useEffect(() => {
-        if (!travelId || travels.length === 0) return;
-        const current = travels.find((t) => t.id === travelId);
-        if (current) {
-            setCurrentTravel(current);
-        } else {
+        if (!travelId) return;
+        
+        fetchCurrentTravel(travelId).catch(() => {
             toast.error("Oops !", { description: "Le voyage que vous tentez de consulter n'existe pas." });
             router.push("/");
-        }
-    }, [travelId, travels, setCurrentTravel, router]);
+        });
+    }, [fetchCurrentTravel, router, travelId]);
 
     const currentTitle = travels.find((t) => t.id === travelId)?.title ?? "Chargement...";
 

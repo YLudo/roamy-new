@@ -45,7 +45,15 @@ export async function POST(request: Request) {
                 endDate: end_date,
                 visibility,
                 createdBy: session.user.id,
-            }
+                participants: {
+                    create: {
+                        userId: session.user.id,
+                        role: "owner",
+                        status: "accepted",
+                        joinedAt: new Date(),
+                    },
+                },
+            },
         });
 
         await pusherServer.trigger(
@@ -66,7 +74,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     try {
         const session = await getServerSession(authOptions);
-         if (!session || !session.user.id) {
+        if (!session || !session.user.id) {
             return NextResponse.json(
                 { message: "Votre session a expiré. Veuillez vous reconnecter." },
                 { status: 401 },

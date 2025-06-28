@@ -17,9 +17,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts       Account[]
-  activateTokens ActivateToken[]
-  trips          Trip[]
+  accounts            Account[]
+  activateTokens      ActivateToken[]
+  trips               Trip[]
+  tripParticipants    TripParticipant[]
+  invitedParticipants TripParticipant[] @relation("InvitedBy")
 }
 
 model Account {
@@ -67,7 +69,8 @@ model Trip {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  creator      User              @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  participants TripParticipant[]
 }
 
 enum TripStatus {
@@ -82,4 +85,33 @@ enum TripVisibility {
   private
   participants_only
   public
+}
+
+model TripParticipant {
+  id        String                @id @default(uuid())
+  tripId    String
+  userId    String
+  role      TripParticipantRole   @default(member)
+  status    TripParticipantStatus @default(invited)
+  invitedBy String?
+  joinedAt  DateTime?
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  trip    Trip  @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inviter User? @relation("InvitedBy", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, userId])
+}
+
+enum TripParticipantRole {
+  owner
+  member
+}
+
+enum TripParticipantStatus {
+  invited
+  accepted
+  declined
 }

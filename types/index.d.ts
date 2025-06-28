@@ -1,3 +1,10 @@
+interface IUser {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+}
+
 interface ITravel {
     id: string
     title: string
@@ -11,4 +18,21 @@ interface ITravel {
     createdBy: string;
     createdAt: Date;
     updatedAt: Date;
+
+    participants: IParticipant[];
+}
+
+interface IParticipant {
+    id: string;
+    tripId: string;
+    userId: string;
+    role: "owner" | "admin" | "member" | "viewer";
+    status: "invited" | "accepted" | "declined" | "removed";
+    invitedBy?: string | null;
+    joinedAt?: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+
+    user: IUser;
+    inviter?: IUser | null;
 }
