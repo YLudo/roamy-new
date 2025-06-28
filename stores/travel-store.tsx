@@ -5,7 +5,7 @@ interface TravelStore {
     currentTravel: ITravel | null;
     isLoading: boolean;
     fetchTravels: () => Promise<void>;
-    setCurrentTravel: (travel: ITravel) => void;
+    fetchCurrentTravel: (id: string) => Promise<void>;
 }
 
 export const useTravelStore = create<TravelStore>((set) => ({
@@ -26,5 +26,18 @@ export const useTravelStore = create<TravelStore>((set) => ({
         }
     },
 
-    setCurrentTravel: (travel) => set({ currentTravel: travel }),
+    fetchCurrentTravel: async (id: string) => {
+        set({ isLoading: true });
+        try {
+            const result = await fetch(`/api/travels/${id}`);
+            if (!result.ok) throw new Error("Erreur lors de la récupération du voyage.");
+            const data = await result.json();
+            set({ currentTravel: data });
+        } catch (error) {
+            console.error(error);
+            set({ currentTravel: null });
+        } finally {
+            set({ isLoading: false });
+        }
+    },
 }));
