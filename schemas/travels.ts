@@ -29,3 +29,14 @@ export const TravelSchema = z.object({
     message: "La date de fin doit être postérieure à la date de début.",
     path: ["end_date"],
 });
+
+export const ParticipantSchema = z.object({
+    email: z
+        .string()
+        .min(1, {
+            message: "Vous devez spécifier l'adresse e-mail du participant.",
+        })
+        .email({
+            message: "Vous devez renseigner une adresse e-mail valide.",
+        }),
+});

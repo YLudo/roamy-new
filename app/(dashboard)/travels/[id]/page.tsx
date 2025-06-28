@@ -17,7 +17,7 @@ export default function TravelDashboardPage() {
 
     return (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <TripParticipants participants={currentTravel.participants} />
+            <TripParticipants travelId={currentTravel.id} participants={currentTravel.participants} />
         </div>
     );
 }

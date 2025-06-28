@@ -4,6 +4,7 @@ interface TravelStore {
     travels: ITravel[];
     currentTravel: ITravel | null;
     isLoading: boolean;
+    setCurrentTravel: (travel: ITravel) => void;
     fetchTravels: () => Promise<void>;
     fetchCurrentTravel: (id: string) => Promise<void>;
 }
@@ -12,6 +13,8 @@ export const useTravelStore = create<TravelStore>((set) => ({
     travels: [],
     currentTravel: null,
     isLoading: false,
+
+    setCurrentTravel: (travel) => set({ currentTravel: travel }),
 
     fetchTravels: async () => {
         set({ isLoading: true });
