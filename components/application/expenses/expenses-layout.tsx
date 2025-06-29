@@ -1,5 +1,6 @@
 import ExpensesDistributionByCategory from "./expenses-distribution-by-category";
 import ExpensesDistributionByPayer from "./expenses-distribution-by-payer";
+import ExpensesList from "./expenses-list";
 import ExpensesPendingAmount from "./expenses-pending-amount";
 import ExpensesSettledAmount from "./expenses-settled-amount";
 import ExpensesShared from "./expenses-shared";
@@ -22,6 +23,9 @@ export default function ExpensesLayout({ expenses }: ExpensesLayoutProps) {
                 <div className="lg:col-span-1 space-y-6">
                     <ExpensesDistributionByPayer expenses={expenses} />
                     <ExpensesDistributionByCategory expenses={expenses} />
+                </div>
+                <div className="lg:col-span-2">
+                    <ExpensesList expenses={expenses} />
                 </div>
             </div>
         </div>

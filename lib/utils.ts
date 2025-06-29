@@ -42,3 +42,12 @@ export const expenseCategoryLabels: Record<string, string> = {
   shopping: "Shopping",
   other: "Autres",
 };
+
+export const formatDate = (date?: Date) => {
+  if (!date) return null
+    return new Intl.DateTimeFormat("fr-FR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+  }).format(new Date(date))
+}

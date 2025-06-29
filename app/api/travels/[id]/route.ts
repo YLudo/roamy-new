@@ -58,8 +58,6 @@ export async function GET(
             return NextResponse.json({ message: "Le voyage que vous tentez de consulter n'existe pas." }, { status: 404 });
         }
 
-        console.log(travel);
-
         return NextResponse.json(travel);
     } catch (error) {
         return NextResponse.json(

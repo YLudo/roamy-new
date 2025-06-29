@@ -71,6 +71,7 @@ interface IExpenseParticipant {
 }
 
 type ExpenseCategory =
+  | "all"
   | "accomodation"
   | "transportation"
   | "food"
@@ -78,3 +79,5 @@ type ExpenseCategory =
   | "activities"
   | "shopping"
   | "other";
+
+type ExpenseStatus = "all" | "settled" | "pending";
