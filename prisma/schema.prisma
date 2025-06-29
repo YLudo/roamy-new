@@ -125,7 +125,7 @@ model Expense {
   category    ExpenseCategory
   title       String
   description String?
-  amount      Decimal
+  amount      Decimal         @db.Decimal(10, 2)
   currency    String          @default("EUR")
   expenseDate DateTime
   isShared    Boolean         @default(false)
@@ -143,7 +143,7 @@ model ExpenseParticipant {
   id         String    @id @default(uuid())
   expenseId  String
   userId     String
-  amountOwed Decimal
+  amountOwed Decimal   @db.Decimal(10, 2)
   isSettled  Boolean   @default(false)
   settledAt  DateTime?
 
