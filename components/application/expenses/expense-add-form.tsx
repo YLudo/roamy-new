@@ -16,8 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Euro, Plus, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 interface ExpenseAddFormProps {
@@ -26,6 +27,7 @@ interface ExpenseAddFormProps {
 
 export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
     const [open, setOpen] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const [participantAmounts, setParticipantAmounts] = useState<Record<string, string>>({});
 
     const form = useForm<z.infer<typeof ExpenseSchema>>({
@@ -50,29 +52,50 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
     const watchedParticipants = form.watch("participants");
     
     const onSubmit = (values: z.infer<typeof ExpenseSchema>) => {
-        console.log("Nouvelle dépense:", values);
+        startTransition(async () => {
+            try {
+                const response = await fetch(`/api/travels/${travel.id}/expenses`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(values),
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                }
+
+                toast.success("Dépense ajoutée !", { description: result.message });
+                setOpen(false);
+                form.reset();
+            } catch (error: any) {
+                toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de l'ajout de la dépense." });
+            }
+        })
     }
 
-    const toggleParticipant = (id: string) => {
+    const toggleParticipant = (userId: string) => {
         const currentParticipants = form.getValues("participants");
         const currentAmounts = form.getValues("participantAmounts");
 
-        if (currentParticipants.includes(id)) {
-            const newParticipants = currentParticipants.filter((id) => id !== id);
+        if (currentParticipants.includes(userId)) {
+            const newParticipants = currentParticipants.filter((id) => id !== userId);
             const newAmounts = { ...currentAmounts };
-            delete newAmounts[id];
+            delete newAmounts[userId];
 
             form.setValue("participants", newParticipants);
             form.setValue("participantAmounts", newAmounts);
             setParticipantAmounts(newAmounts);
         } else {
             const totalAmount = Number.parseFloat(watchedAmount) || 0;
-            const newParticipants = [...currentParticipants, id];
+            const newParticipants = [...currentParticipants, userId];
             const amountPerPerson = totalAmount / (newParticipants.length + 1);
 
             const newAmounts = {
                 ...currentAmounts,
-                [id]: amountPerPerson.toFixed(2),
+                [userId]: amountPerPerson.toFixed(2),
             }
 
             form.setValue("participants", newParticipants);
@@ -83,31 +106,31 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
 
     const handleEqualSplit = () => {
         const totalAmount = Number.parseFloat(watchedAmount) || 0;
-        const availableUsers = travel.participants.filter((participant) => participant.id !== watchedPaidBy);
+        const availableUsers = travel.participants.filter((participant) => participant.userId !== watchedPaidBy);
         const totalParticipants = availableUsers.length + 1;
         const amountPerPerson = totalAmount / totalParticipants;
 
         const newAmounts = availableUsers.reduce(
             (acc, participant) => ({
                 ...acc,
-                [participant.id]: amountPerPerson.toFixed(2),
+                [participant.userId]: amountPerPerson.toFixed(2),
             }),
             {},
         );
 
         form.setValue(
             "participants",
-            availableUsers.map((participant) => participant.id),
+            availableUsers.map((participant) => participant.userId),
         );
         form.setValue("participantAmounts", newAmounts);
         setParticipantAmounts(newAmounts);
     }
 
-    const updateParticipantAmount = (id: string, amount: string) => {
+    const updateParticipantAmount = (userId: string, amount: string) => {
         const currentAmounts = form.getValues("participantAmounts");
         const newAmounts = {
             ...currentAmounts,
-            [id]: amount,
+            [userId]: amount,
         }
 
         form.setValue("participantAmounts", newAmounts);
@@ -225,7 +248,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                                                     </FormControl>
                                                     <SelectContent>
                                                         {travel.participants?.map((participant) => (
-                                                            <SelectItem key={participant.id} value={participant.id}>
+                                                            <SelectItem key={participant.userId} value={participant.userId}>
                                                                 {participant.user?.name}
                                                             </SelectItem>
                                                         ))}
@@ -338,27 +361,27 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                                             )}
                                             <div className="space-y-3 max-h-64 overflow-y-auto">
                                                 {travel.participants
-                                                    .filter((participant) => participant.id !== watchedPaidBy)
+                                                    .filter((participant) => participant.userId !== watchedPaidBy)
                                                     .map((participant) => (
-                                                        <div key={participant.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                                        <div key={participant.userId} className="flex items-center justify-between p-3 border rounded-lg">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="flex items-center gap-2">
                                                                     <Checkbox
-                                                                        checked={watchedParticipants.includes(participant.id)}
-                                                                        onCheckedChange={() => toggleParticipant(participant.id)}
+                                                                        checked={watchedParticipants.includes(participant.userId)}
+                                                                        onCheckedChange={() => toggleParticipant(participant.userId)}
                                                                         className="rounded"
                                                                     />
                                                                     <span className="text-sm font-medium">{participant.user.name}</span>
                                                                 </div>
                                                             </div>
-                                                            {watchedParticipants.includes(participant.id) && (
+                                                            {watchedParticipants.includes(participant.userId) && (
                                                                 <div className="flex items-center gap-2">
                                                                     <Input
                                                                         type="number"
                                                                         step="0.01"
                                                                         placeholder="0.00"
-                                                                        value={participantAmounts[participant.id] || ""}
-                                                                        onChange={(e) => updateParticipantAmount(participant.id, e.target.value)}
+                                                                        value={participantAmounts[participant.userId] || ""}
+                                                                        onChange={(e) => updateParticipantAmount(participant.userId, e.target.value)}
                                                                         className="w-24 text-right"
                                                                     />
                                                                     <span className="text-sm text-muted-foreground">EUR</span>

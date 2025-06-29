@@ -1,14 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ExpenseCard from "./expense-card";
 import ExpensesFilters from "./expenses-filter";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExpenseAddForm from "./expense-add-form";
+import { pusherClient } from "@/lib/pusher";
+import { useTravelStore } from "@/stores/travel-store";
 
 interface ExpensesListProps {
     travel: ITravel;
 }
 
 export default function ExpensesList({ travel }: ExpensesListProps) {
+    const { setCurrentTravel } = useTravelStore();
+
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<ExpenseCategory>("all");
     const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("all");
@@ -25,6 +29,26 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
 
         return matchesSearch && matchesCategory && matchesStatus
     });
+
+    useEffect(() => {
+        if (!travel) return;
+
+        const channel = pusherClient.subscribe(`travel-${travel.id}`);
+
+        channel.bind("expenses:new", (newExpense: IExpense) => {
+            if (!travel?.expenses.some(e => e.id === newExpense.id)) {
+                setCurrentTravel({
+                    ...travel,
+                    expenses: [...(travel?.expenses ?? []), newExpense],
+                });
+            }
+        });
+
+        return () => {
+            pusherClient.unbind_all();
+            pusherClient.unsubscribe(`travel-${travel.id}`);
+        };
+    }, [setCurrentTravel, travel]);
 
     return (
         <Card>
