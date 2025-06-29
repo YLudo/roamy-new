@@ -16,6 +16,6 @@ export default function TravelExpensesPage() {
     }
     
     return (
-        <ExpensesLayout expenses={currentTravel.expenses} />
+        <ExpensesLayout travel={currentTravel} />
     );
 }

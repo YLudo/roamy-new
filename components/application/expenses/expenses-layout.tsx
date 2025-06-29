@@ -7,25 +7,25 @@ import ExpensesShared from "./expenses-shared";
 import ExpensesTotal from "./expenses-total";
 
 interface ExpensesLayoutProps {
-    expenses: IExpense[];
+    travel: ITravel;
 }
 
-export default function ExpensesLayout({ expenses }: ExpensesLayoutProps) {
+export default function ExpensesLayout({ travel }: ExpensesLayoutProps) {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <ExpensesTotal expenses={expenses} />
-                <ExpensesShared expenses={expenses} />
-                <ExpensesSettledAmount expenses={expenses} />
-                <ExpensesPendingAmount expenses={expenses} />
+                <ExpensesTotal expenses={travel.expenses} />
+                <ExpensesShared expenses={travel.expenses} />
+                <ExpensesSettledAmount expenses={travel.expenses} />
+                <ExpensesPendingAmount expenses={travel.expenses} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1 space-y-6">
-                    <ExpensesDistributionByPayer expenses={expenses} />
-                    <ExpensesDistributionByCategory expenses={expenses} />
+                    <ExpensesDistributionByPayer expenses={travel.expenses} />
+                    <ExpensesDistributionByCategory expenses={travel.expenses} />
                 </div>
                 <div className="lg:col-span-2">
-                    <ExpensesList expenses={expenses} />
+                    <ExpensesList travel={travel} />
                 </div>
             </div>
         </div>

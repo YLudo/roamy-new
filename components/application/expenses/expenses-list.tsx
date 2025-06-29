@@ -2,17 +2,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import ExpenseCard from "./expense-card";
 import ExpensesFilters from "./expenses-filter";
 import { useState } from "react";
+import ExpenseAddForm from "./expense-add-form";
 
 interface ExpensesListProps {
-    expenses: IExpense[];
+    travel: ITravel;
 }
 
-export default function ExpensesList({ expenses }: ExpensesListProps) {
+export default function ExpensesList({ travel }: ExpensesListProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<ExpenseCategory>("all");
     const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("all");
 
-    const filteredExpenses = expenses.filter((expense) => {
+    const filteredExpenses = travel.expenses.filter((expense) => {
         const matchesSearch =
             expense.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             expense.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -28,8 +29,13 @@ export default function ExpensesList({ expenses }: ExpensesListProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Liste des dépenses</CardTitle>
-                <CardDescription>Gérez et filtrez vos dépenses</CardDescription>
+                <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                        <CardTitle>Liste des dépenses</CardTitle>
+                        <CardDescription>Gérez et filtrez vos dépenses</CardDescription>
+                    </div>
+                    <ExpenseAddForm travel={travel} />
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
                 <ExpensesFilters
