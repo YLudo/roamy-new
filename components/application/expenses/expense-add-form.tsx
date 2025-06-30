@@ -15,7 +15,7 @@ import { ExpenseSchema } from "@/schemas/expenses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarIcon, Euro, Plus, Users } from "lucide-react";
+import { CalendarIcon, Euro, Loader2, Plus, Users } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -415,7 +415,16 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                                 </div>
                             </div>
                             <div className="flex justify-end py-4 border-t">
-                                <Button type="submit">Créer la dépense</Button>
+                                <Button type="submit">
+                                    {isPending ? (
+                                        <>
+                                            <Loader2 className="size-4 animate-spin mr-2" />
+                                            Chargement...
+                                        </>
+                                    ) : (
+                                        "Créer la dépense"
+                                    )}
+                                </Button>
                             </div>
                         </form>
                     </Form>

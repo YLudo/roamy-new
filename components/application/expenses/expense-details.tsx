@@ -324,7 +324,10 @@ export default function ExpenseDetails({
                                                             disabled={isPending}
                                                         >
                                                             {isPending ? (
-                                                                <Loader2 className="size-3 animate-spin" />
+                                                                <>
+                                                                    <Loader2 className="size-3 animate-spin" />
+                                                                    Chargement...
+                                                                </>
                                                             ) : (
                                                                 <>
                                                                     <Check className="h-3 w-3 mr-1" />
