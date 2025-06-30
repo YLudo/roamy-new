@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { expenseCategoryLabels, formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
-import { Calendar, Check, Clock, CreditCard, MapPin, Users, X } from "lucide-react";
+import { expenseCategoryLabels, formatCurrency, formatDate } from "@/lib/utils";
+import { Calendar, Check, Clock, CreditCard, Loader2, MapPin, Users, X } from "lucide-react";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 interface ExpenseDetailsProps {
     expense: IExpense;
@@ -16,6 +18,8 @@ export default function ExpenseDetails({
     expense,
     onClose
 }: ExpenseDetailsProps) {
+    const [isPending, startTransition] = useTransition();
+
     const totalParticipants = expense.participants ? expense.participants.length + 1 : 1;
     const settledParticipants = expense.participants ? expense.participants.filter((p) => p.isSettled).length : 0;
 
@@ -31,6 +35,26 @@ export default function ExpenseDetails({
         : 0;
 
     const pendingAmount = totalOwed - settledAmount
+
+    const handleSettle = () => {
+        startTransition(async () => {
+            try {
+                const response = await fetch(`/api/travels/${expense.tripId}/expenses/${expense.id}/settle`, {
+                    method: "PATCH",
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                }
+
+                toast.success("Dépense modifiée !", { description: result.message });
+                onClose();
+            } catch (error: any) {
+                toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de la modification de la dépense." });
+            }
+        });
+    }
 
     return (
         <div className="space-y-6">
@@ -296,9 +320,17 @@ export default function ExpenseDetails({
                                                             variant="outline"
                                                             size="sm"
                                                             className="mt-2"
+                                                            onClick={handleSettle}
+                                                            disabled={isPending}
                                                         >
-                                                        <Check className="h-3 w-3 mr-1" />
-                                                            Marquer comme réglé
+                                                            {isPending ? (
+                                                                <Loader2 className="size-3 animate-spin" />
+                                                            ) : (
+                                                                <>
+                                                                    <Check className="h-3 w-3 mr-1" />
+                                                                    Marquer comme réglé
+                                                                </>
+                                                            )}
                                                         </Button>
                                                     )}
                                                 </div>

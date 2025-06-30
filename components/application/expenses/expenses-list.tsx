@@ -54,6 +54,17 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
             }
         });
 
+        channel.bind("expenses:settled", (updatedExpense: IExpense) => {
+            const updatedExpenses = travel.expenses.map((expense) =>
+                expense.id === updatedExpense.id ? updatedExpense : expense
+            );
+
+            setCurrentTravel({
+                ...travel,
+                expenses: updatedExpenses,
+            });
+        });
+
         return () => {
             pusherClient.unbind_all();
             pusherClient.unsubscribe(`travel-${travel.id}`);
