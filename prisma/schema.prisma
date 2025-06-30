@@ -21,7 +21,9 @@ model User {
   activateTokens      ActivateToken[]
   trips               Trip[]
   tripParticipants    TripParticipant[]
-  invitedParticipants TripParticipant[] @relation("InvitedBy")
+  invitedParticipants TripParticipant[]    @relation("InvitedBy")
+  paidExpenses        Expense[]            @relation("PaidExpenses")
+  expenseParticipants ExpenseParticipant[]
 }
 
 model Account {
@@ -71,6 +73,7 @@ model Trip {
 
   creator      User              @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   participants TripParticipant[]
+  expenses     Expense[]
 }
 
 enum TripStatus {
@@ -114,4 +117,46 @@ enum TripParticipantStatus {
   invited
   accepted
   declined
+}
+
+model Expense {
+  id          String          @id @default(uuid())
+  tripId      String
+  category    ExpenseCategory
+  title       String
+  description String?
+  amount      Decimal         @db.Decimal(10, 2)
+  currency    String          @default("EUR")
+  expenseDate DateTime
+  isShared    Boolean         @default(false)
+  paidBy      String
+  location    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  trip         Trip                 @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  payer        User                 @relation("PaidExpenses", fields: [paidBy], references: [id], onDelete: Cascade)
+  participants ExpenseParticipant[]
+}
+
+model ExpenseParticipant {
+  id         String    @id @default(uuid())
+  expenseId  String
+  userId     String
+  amountOwed Decimal   @db.Decimal(10, 2)
+  isSettled  Boolean   @default(false)
+  settledAt  DateTime?
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ExpenseCategory {
+  accomodation
+  transportation
+  food
+  drinks
+  activities
+  shopping
+  other
 }

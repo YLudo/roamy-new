@@ -20,6 +20,7 @@ interface ITravel {
     updatedAt: Date;
 
     participants: IParticipant[];
+    expenses: IExpense[];
 }
 
 interface IParticipant {
@@ -36,3 +37,47 @@ interface IParticipant {
     user: IUser;
     inviter?: IUser | null;
 }
+
+interface IExpense {
+    id: string;
+    tripId: string;
+    category: ExpenseCategory;
+    title: string;
+    description?: string | null;
+    amount: number;
+    currency: string;
+    expenseDate: Date;
+    isShared: boolean;
+    paidBy: string;
+    location?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+
+    trip?: ITravel;
+    payer: IUser;
+    participants?: IExpenseParticipant[];
+}
+
+interface IExpenseParticipant {
+    id: string;
+    expenseId: string;
+    userId: string;
+    amountOwed: number;
+    isSettled: boolean;
+    settledAt?: Date | null;
+
+    expense?: IExpense;
+    user?: IUser;
+}
+
+type ExpenseCategory =
+  | "all"
+  | "accomodation"
+  | "transportation"
+  | "food"
+  | "drinks"
+  | "activities"
+  | "shopping"
+  | "other";
+
+type ExpenseStatus = "all" | "settled" | "pending";

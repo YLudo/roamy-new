@@ -10,7 +10,7 @@ import { pusherClient } from "@/lib/pusher";
 import { ParticipantSchema } from "@/schemas/travels";
 import { useTravelStore } from "@/stores/travel-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, Crown, Loader2, Mail, Plus, Users } from "lucide-react";
+import { Crown, Loader2, Mail, Plus, Users } from "lucide-react";
 import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

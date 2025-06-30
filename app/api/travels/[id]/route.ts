@@ -41,6 +41,16 @@ export async function GET(
                         },
                     },
                 },
+                expenses: {
+                    include: {
+                        participants: {
+                            include: {
+                                user: true
+                            }
+                        },
+                        payer: true
+                    }
+                },
             },
         });
 
