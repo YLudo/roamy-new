@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import ExpenseAddForm from "./expense-add-form";
 import { pusherClient } from "@/lib/pusher";
 import { useTravelStore } from "@/stores/travel-store";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ExpenseDetails from "./expense-details";
 
 interface ExpensesListProps {
     travel: ITravel;
@@ -16,6 +18,9 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<ExpenseCategory>("all");
     const [statusFilter, setStatusFilter] = useState<ExpenseStatus>("all");
+
+    const [selectedExpense, setSelectedExpense] = useState<IExpense | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
     const filteredExpenses = travel.expenses.filter((expense) => {
         const matchesSearch =
@@ -29,6 +34,11 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
 
         return matchesSearch && matchesCategory && matchesStatus
     });
+
+    const handleExpenseClick = (expense: IExpense) => {
+        setSelectedExpense(expense);
+        setIsDetailsOpen(true);
+    }
 
     useEffect(() => {
         if (!travel) return;
@@ -51,31 +61,41 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
     }, [setCurrentTravel, travel]);
 
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <CardTitle>Liste des dépenses</CardTitle>
-                        <CardDescription>Gérez et filtrez vos dépenses</CardDescription>
+        <>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <CardTitle>Liste des dépenses</CardTitle>
+                            <CardDescription>Gérez et filtrez vos dépenses</CardDescription>
+                        </div>
+                        <ExpenseAddForm travel={travel} />
                     </div>
-                    <ExpenseAddForm travel={travel} />
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <ExpensesFilters
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    categoryFilter={categoryFilter}
-                    setCategoryFilter={setCategoryFilter}
-                    statusFilter={statusFilter}
-                    setStatusFilter={setStatusFilter}
-                />
-                <div className="space-y-4">
-                    {filteredExpenses.map((expense) => (
-                        <ExpenseCard key={expense.id} expense={expense} />
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <ExpensesFilters
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        categoryFilter={categoryFilter}
+                        setCategoryFilter={setCategoryFilter}
+                        statusFilter={statusFilter}
+                        setStatusFilter={setStatusFilter}
+                    />
+                    <div className="space-y-4">
+                        {filteredExpenses.map((expense) => (
+                            <ExpenseCard key={expense.id} expense={expense} onClick={() => handleExpenseClick(expense)} />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <DialogContent className="!w-full !max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Détails de la dépense</DialogTitle>
+                    </DialogHeader>
+                    {selectedExpense && <ExpenseDetails expense={selectedExpense} onClose={() => setIsDetailsOpen(false)} />}
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

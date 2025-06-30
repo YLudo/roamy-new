@@ -4,11 +4,12 @@ import { Calendar, Users } from "lucide-react";
 
 interface ExpenseCardProps {
     expense: IExpense;
+    onClick: () => void;
 }
 
-export default function ExpenseCard({ expense }: ExpenseCardProps) {
+export default function ExpenseCard({ expense, onClick }: ExpenseCardProps) {
     return (
-        <div className="cursor-pointer hover:bg-muted/50 transition-colors p-4 border rounded-lg">
+        <div className="cursor-pointer hover:bg-muted/50 transition-colors p-4 border rounded-lg" onClick={onClick}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
                     <div className="flex-1 min-w-0">
