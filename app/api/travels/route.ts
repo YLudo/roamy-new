@@ -82,7 +82,12 @@ export async function GET(request: Request) {
         }
 
         const travels = await prisma.trip.findMany({
-            where: { createdBy: session.user.id },
+            where: {
+                OR: [
+                    { createdBy: session.user.id },
+                    { participants: { some: { userId: session.user.id } } }
+                ]
+            },
             orderBy: { startDate: "desc" },
         });
 

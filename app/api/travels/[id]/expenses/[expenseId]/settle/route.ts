@@ -65,7 +65,7 @@ export async function PATCH(
 
         if (result.count === 0) {
             return NextResponse.json(
-                { message: "La dépense n'a pas pu être modifiée." },
+                { message: "Vous ne pouvez pas réglé une dépense pour un autre participant." },
                 { status: 400 },
             )
         }
