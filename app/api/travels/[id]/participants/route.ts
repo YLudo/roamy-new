@@ -20,6 +20,25 @@ export async function POST(
         const params = await context.params;
         const travelId = params.id;
 
+        const travel = await prisma.trip.findUnique({
+            where: { id: travelId },
+            include: {
+                participants: true,
+            },
+        });
+
+        if (!travel) {
+            return NextResponse.json({ message: "Le voyage que vous tentez de consulter n'existe pas." }, { status: 404 });
+        }
+
+        const isParticipant = travel.participants.some(p => p.userId === session.user.id);
+        if (!isParticipant) {
+            return NextResponse.json(
+                { message: "Vous n'avez pas l'autorisation d'ajouter un participant à ce voyage." },
+                { status: 403 },
+            );
+        }
+
         const { email } = await request.json();
 
         if (!email || typeof email !== "string") {
@@ -103,7 +122,6 @@ export async function POST(
             { status: 201 },
         )
     } catch (error) {
-        console.log(error);
         return NextResponse.json(
             { message: "Erreur lors de l'ajout du participant." },
             { status: 500 },

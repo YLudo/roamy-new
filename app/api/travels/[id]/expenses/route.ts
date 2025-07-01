@@ -21,6 +21,25 @@ export async function POST(
         const params = await context.params;
         const travelId = params.id;
 
+        const travel = await prisma.trip.findUnique({
+            where: { id: travelId },
+            include: {
+                participants: true,
+            },
+        });
+
+        if (!travel) {
+            return NextResponse.json({ message: "Le voyage que vous tentez de consulter n'existe pas." }, { status: 404 });
+        }
+
+        const isParticipant = travel.participants.some(p => p.userId === session.user.id);
+        if (!isParticipant) {
+            return NextResponse.json(
+                { message: "Vous n'avez pas l'autorisation d'ajouter une dépense à ce voyage." },
+                { status: 403 },
+            );
+        }
+
         const values = await request.json();
 
         const parsed = ExpenseSchema.safeParse(values);

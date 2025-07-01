@@ -21,6 +21,7 @@ interface ITravel {
 
     participants: IParticipant[];
     expenses: IExpense[];
+    messages: IMessage[];
 }
 
 interface IParticipant {
@@ -81,3 +82,15 @@ type ExpenseCategory =
   | "other";
 
 type ExpenseStatus = "all" | "settled" | "pending";
+
+interface IMessage {
+    id: string;
+    tripId: string;
+    senderId: string;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    trip?: ITravel;
+    sender?: IUser;
+}
