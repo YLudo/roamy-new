@@ -45,17 +45,30 @@ export async function GET(
                     include: {
                         participants: {
                             include: {
-                                user: true
+                                user: true,
                             }
                         },
-                        payer: true
-                    }
+                        payer: true,
+                    },
+                },
+                messages: {
+                    include: {
+                        sender: true,
+                    },
                 },
             },
         });
 
         if (!travel) {
             return NextResponse.json({ message: "Le voyage que vous tentez de consulter n'existe pas." }, { status: 404 });
+        }
+
+        const isParticipant = travel.participants.some(p => p.userId === session.user.id);
+        if (!isParticipant) {
+            return NextResponse.json(
+                { message: "Vous n'avez pas l'autorisation de récupérer les informations de ce voyage." },
+                { status: 403 },
+            );
         }
 
         return NextResponse.json(travel);

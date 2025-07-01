@@ -21,6 +21,25 @@ export async function PATCH(
         const travelId = params.id;
         const expenseId = params.expenseId;
 
+        const travel = await prisma.trip.findUnique({
+            where: { id: travelId },
+            include: {
+                participants: true,
+            },
+        });
+
+        if (!travel) {
+            return NextResponse.json({ message: "Le voyage que vous tentez de consulter n'existe pas." }, { status: 404 });
+        }
+
+        const isParticipant = travel.participants.some(p => p.userId === session.user.id);
+        if (!isParticipant) {
+            return NextResponse.json(
+                { message: "Vous n'avez pas l'autorisation de modifier la dépense de ce voyage." },
+                { status: 403 },
+            );
+        }
+
         const expense = await prisma.expense.findUnique({
             where: { id: expenseId },
         });

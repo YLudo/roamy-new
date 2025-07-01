@@ -8,6 +8,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { useTravelStore } from "@/stores/travel-store";
 import { toast } from "sonner";
+import ChatBubble from "@/components/application/chat/chat-bubble";
 
 interface TravelLayoutProps {
     children: ReactNode;
@@ -20,6 +21,7 @@ export default function TravelLayout({ children }: TravelLayoutProps) {
 
     const {
         travels,
+        currentTravel,
         fetchTravels,
         fetchCurrentTravel,
     } = useTravelStore();
@@ -58,6 +60,9 @@ export default function TravelLayout({ children }: TravelLayoutProps) {
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                     {children}
                 </div>
+                {currentTravel && (
+                    <ChatBubble />
+                )}
             </SidebarInset>
         </SidebarProvider>
     );
