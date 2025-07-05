@@ -7,6 +7,7 @@ import { pusherClient } from "@/lib/pusher";
 import { useTravelStore } from "@/stores/travel-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ExpenseDetails from "./expense-details";
+import { Euro } from "lucide-react";
 
 interface ExpensesListProps {
     travel: ITravel;
@@ -92,11 +93,23 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
                         statusFilter={statusFilter}
                         setStatusFilter={setStatusFilter}
                     />
-                    <div className="space-y-4">
-                        {filteredExpenses.map((expense) => (
-                            <ExpenseCard key={expense.id} expense={expense} onClick={() => handleExpenseClick(expense)} />
-                        ))}
-                    </div>
+                    {filteredExpenses.length > 0 ? (
+                        <div className="space-y-4">
+                            {filteredExpenses.map((expense) => (
+                                <ExpenseCard key={expense.id} expense={expense} onClick={() => handleExpenseClick(expense)} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-6 px-6 bg-muted rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors">
+                            <div className="flex flex-col items-center space-y-2">
+                                <Euro className="size-8 text-primary" />
+                                <div className="space-y-2">
+                                    <h3 className="text font-semibold text-foreground">Aucun dépense enregistrée</h3>
+                                    <p className="text-sm text-muted-foreground">Ajoutez une première dépense pour commencer l'aventure.</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
             <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
