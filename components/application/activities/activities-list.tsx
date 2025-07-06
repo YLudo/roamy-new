@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useState } from "react";
 import ActivitiesFilters from "./activities-filters";
+import ActivityAddForm from "./activity-add-form";
 
 interface ActivitiesListProps {
     travel: ITravel;
@@ -34,7 +34,7 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                             <CardTitle>Liste des activités</CardTitle>
                             <CardDescription>Gérez et filtrez vos activités</CardDescription>
                         </div>
-                        <Button>Ajouter une activité</Button>
+                        <ActivityAddForm />
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
