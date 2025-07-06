@@ -45,7 +45,7 @@ interface IActivity {
     tripId: string;
     title: string;
     description?: string | null;
-    type: "transport" | "accomodation" | "restaurant" | "sightseeing" | "entertainment" | "entertainment" | "meeting" | "other";
+    type: ActivityType;
     startDate: Date;
     endDate?: Date | null;
     location?: string | null;
@@ -61,6 +61,17 @@ interface IActivity {
     trip?: ITravel;
     creator?: IUser;
 }
+
+type ActivityType =
+  | "all"
+  | "transport" 
+  | "accomodation" 
+  | "restaurant" 
+  | "sightseeing" 
+  | "entertainment" 
+  | "entertainment" 
+  | "meeting" 
+  | "other";
 
 interface IExpense {
     id: string;

@@ -49,6 +49,16 @@ export const expenseCategoryLabels: Record<string, string> = {
   other: "Autres",
 };
 
+export const activityTypeLabels: Record<string, string> = {
+  transport: "Transport",
+  accomodation: "Hébergement",
+  restaurant: "Restaurant",
+  sightseeing: "Tourisme",
+  entertainment: "Divertissement",
+  meeting: "Réunion",
+  other: "Autre",
+}
+
 export const formatDate = (date?: Date) => {
   if (!date) return null
     return new Intl.DateTimeFormat("fr-FR", {

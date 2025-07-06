@@ -1,5 +1,7 @@
 import ActivitiesConfirmed from "./activities-confirmed";
 import ActivitiesCost from "./activities-cost";
+import ActivitiesList from "./activities-list";
+import ActivitiesMap from "./activities-map";
 import ActivitiesPending from "./activities-pending";
 import ActivitiesTotal from "./activities-total";
 
@@ -15,6 +17,10 @@ export default function ActivitiesLayout({ travel }: ActivitiesLayoutProps) {
                 <ActivitiesCost activities={travel.activities} />
                 <ActivitiesConfirmed activities={travel.activities} />
                 <ActivitiesPending activities={travel.activities} />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ActivitiesList travel={travel} />
+                <ActivitiesMap />
             </div>
         </div>
     );
