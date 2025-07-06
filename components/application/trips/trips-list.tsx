@@ -29,7 +29,7 @@ export default function TripsList({ isLoading, travels }: TripsListProps) {
     return (
         <div className="grid gap-4">
             {travels.map((travel, index) => (
-                <TripCard key={index} trip={travel} />
+                <TripCard key={index} trip={travel} showActions />
             ))}
         </div>
     );

@@ -18,7 +18,12 @@ const visibilityConfig = {
   private: { label: "Privé", icon: Eye },
 }
 
-export default function TripCard({ trip }: { trip: ITravel}) {
+interface TripCardProps {
+    trip: ITravel;
+    showActions?: boolean;
+}
+
+export default function TripCard({ trip, showActions }: TripCardProps) {
     const formatDate = (date?: Date) => {
         if (!date) return null
         return new Intl.DateTimeFormat("fr-FR", {
@@ -71,9 +76,11 @@ export default function TripCard({ trip }: { trip: ITravel}) {
                         <span className="truncate">{visibilityConfig[trip.visibility].label}</span>
                     </div>
                 </div>
-                <div className="flex justify-end">
-                    <Link href={`/travels/${trip.id}`} className={`w-full sm:w-auto ${buttonVariants()}`}>Voir le voyage</Link>
-                </div>
+                {showActions && (
+                    <div className="flex justify-end">
+                        <Link href={`/travels/${trip.id}`} className={`w-full sm:w-auto ${buttonVariants()}`}>Voir le voyage</Link>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

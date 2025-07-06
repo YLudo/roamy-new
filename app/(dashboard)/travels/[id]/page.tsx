@@ -1,5 +1,6 @@
 "use client";
 
+import TripCard from "@/components/application/trips/trip-card";
 import TripParticipants from "@/components/application/trips/trip-participants";
 import { useTravelStore } from "@/stores/travel-store";
 import { Loader2 } from "lucide-react";
@@ -17,7 +18,10 @@ export default function TravelDashboardPage() {
 
     return (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <TripParticipants travelId={currentTravel.id} participants={currentTravel.participants} />
+            <div className="flex flex-col gap-4">
+                <TripCard trip={currentTravel} />
+                <TripParticipants travelId={currentTravel.id} participants={currentTravel.participants} />
+            </div>
         </div>
     );
 }
