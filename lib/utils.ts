@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
-import { Euro, LayoutGrid } from "lucide-react"
+import { Euro, LayoutGrid, Map } from "lucide-react"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -18,11 +18,17 @@ export function getMenuList(pathname: string) {
       active: /^\/travels\/[^\/]+$/.test(pathname)
     },
     {
+      href: `${travelBase}/activities`,
+      label: "Activités",
+      icon: Map,
+      active: pathname.includes("/activities"),
+    },
+    {
       href: `${travelBase}/expenses`,
       label: "Dépenses",
       icon: Euro,
       active: pathname.includes("/expenses"),
-    }
+    },
   ]
 }
 
