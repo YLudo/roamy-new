@@ -22,6 +22,7 @@ interface ITravel {
     participants: IParticipant[];
     expenses: IExpense[];
     messages: IMessage[];
+    activities: IActivity[];
 }
 
 interface IParticipant {
