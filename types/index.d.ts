@@ -39,6 +39,28 @@ interface IParticipant {
     inviter?: IUser | null;
 }
 
+interface IActivity {
+    id: string;
+    tripId: string;
+    title: string;
+    description?: string | null;
+    type: "transport" | "accomodation" | "restaurant" | "sightseeing" | "entertainment" | "entertainment" | "meeting" | "other";
+    startDate: Date;
+    endDate?: Date | null;
+    location?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    estimatedCost?: number | null;
+    currency: string;
+    isConfirmed: boolean;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    trip?: ITravel;
+    creator?: IUser;
+}
+
 interface IExpense {
     id: string;
     tripId: string;
