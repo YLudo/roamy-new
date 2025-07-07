@@ -21,12 +21,6 @@ export const ActivitySchema = z.object({
         .date({
             message: "Vous devez spécifier une date valide.",
         }),
-    endDate: z
-        .coerce
-        .date({
-            message: "Vous devez spécifier une date valide.",
-        })
-        .optional(),
     location: z
         .string()
         .optional(),

@@ -28,6 +28,7 @@ export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
+    const [time, setTime] = useState("00:00");
     const [locationQuery, setLocationQuery] = useState("");
     const [suggestions, setSuggestions] = useState<MapboxFeature[]>([]);
     
@@ -38,7 +39,6 @@ export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
             description: "",
             type: "other",
             startDate: undefined,
-            endDate: undefined,
             location: "",
             latitude: undefined,
             longitude: undefined,
@@ -221,27 +221,27 @@ export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Date de début</FormLabel>
+                            <FormField
+                                control={form.control}
+                                name="startDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date et heure de début</FormLabel>
+                                        <div className="flex items-center gap-2">
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button
                                                             variant="outline"
                                                             className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground",
+                                                                "flex-1 pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
                                                             )}
                                                         >
                                                             {field.value ? (
-                                                                format(field.value, "PPP", { locale: fr })
+                                                                format(field.value, "PPP 'à' HH:mm", { locale: fr })
                                                             ) : (
-                                                                <span>Sélectionner une date de début</span>
+                                                                <span>Sélectionner une date</span>
                                                             )}
                                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                         </Button>
@@ -251,56 +251,41 @@ export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
+                                                        onSelect={(date) => {
+                                                            if (!date) return;
+                                                            const [hours, minutes] = time.split(":").map(Number);
+                                                            const newDateTime = new Date(date);
+                                                            newDateTime.setHours(hours, minutes);
+                                                            field.onChange(newDateTime);
+                                                        }}
                                                         disabled={(date) => date < new Date("1900-01-01")}
                                                         locale={fr}
                                                     />
                                                 </PopoverContent>
                                             </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Date de fin</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant="outline"
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground",
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP", { locale: fr })
-                                                            ) : (
-                                                                <span>Sélectionner une date de fin</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) => date < new Date("1900-01-01")}
-                                                        locale={fr}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
+                                            <FormControl>
+                                                <Input
+                                                    type="time"
+                                                    value={time}
+                                                    onChange={(e) => {
+                                                    const newTime = e.target.value;
+                                                    setTime(newTime);
+
+                                                    if (field.value) {
+                                                        const [hours, minutes] = newTime.split(":").map(Number);
+                                                        const newDateTime = new Date(field.value);
+                                                        newDateTime.setHours(hours, minutes);
+                                                        field.onChange(newDateTime);
+                                                    }
+                                                    }}
+                                                    className="w-auto"
+                                                />
+                                                </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}

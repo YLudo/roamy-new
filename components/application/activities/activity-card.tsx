@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Calendar, MapPin } from "lucide-react";
 
 interface ActivityCardProps {
@@ -28,10 +28,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
                             </span>
                             <span className="flex items-center gap-1">
                                 <Calendar className="size-3 text-primary" />
-                                {formatDate(activity.startDate)}
-                                {activity.endDate && (
-                                    <> - {formatDate(activity.endDate)}</>
-                                )}
+                                {formatDateTime(activity.startDate)}
                             </span>
                         </div>
                     </div>

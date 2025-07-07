@@ -75,5 +75,5 @@ export const formatDateTime = (date: Date) => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date)
+  }).format(new Date(date))
 }

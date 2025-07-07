@@ -47,7 +47,6 @@ interface IActivity {
     description?: string | null;
     type: ActivityType;
     startDate: Date;
-    endDate?: Date | null;
     location?: string | null;
     latitude?: number | null;
     longitude?: number | null;

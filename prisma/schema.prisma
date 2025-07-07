@@ -130,7 +130,6 @@ model Activity {
   description   String?
   type          ActivityType @default(other)
   startDate     DateTime
-  endDate       DateTime?
   location      String?
   latitude      Decimal?     @db.Decimal(10, 8)
   longitude     Decimal?     @db.Decimal(11, 8)
