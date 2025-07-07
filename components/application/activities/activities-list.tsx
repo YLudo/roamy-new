@@ -8,6 +8,8 @@ import ActivityAddForm from "./activity-add-form";
 import ActivityCard from "./activity-card";
 import { pusherClient } from "@/lib/pusher";
 import { useTravelStore } from "@/stores/travel-store";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ActivityDetails from "./activity-details";
 
 interface ActivitiesListProps {
     travel: ITravel;
@@ -19,6 +21,9 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState<ActivityType>("all");
 
+    const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
+
     const filteredActivities = travel.activities.filter((activity) => {
         const matchesSearch =
             activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,6 +32,11 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
 
         return matchesSearch && matchesType;
     });
+
+    const handleActivityClick = (activity: IActivity) => {
+        setSelectedActivity(activity);
+        setIsDetailsOpen(true);
+    }
 
     useEffect(() => {
         if (!travel) return;
@@ -70,7 +80,7 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                     {filteredActivities.length > 0 ? (
                         <div className="space-y-4">
                             {filteredActivities.map((activity) => (
-                                <ActivityCard key={activity.id} activity={activity} />
+                                <ActivityCard key={activity.id} activity={activity} onClick={() => handleActivityClick(activity)} />
                             ))}
                         </div>
                     ) : (
@@ -86,6 +96,14 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                     )}
                 </CardContent>
             </Card>
+            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                <DialogContent className="!w-full !max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Détails de l'activité</DialogTitle>
+                    </DialogHeader>
+                    {selectedActivity && <ActivityDetails activity={selectedActivity} />}
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

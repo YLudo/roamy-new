@@ -1,14 +1,15 @@
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { activityTypeLabels, formatCurrency, formatDateTime } from "@/lib/utils";
 import { Calendar, MapPin } from "lucide-react";
 
 interface ActivityCardProps {
     activity: IActivity;
+    onClick: () => void;
 }
 
-export default function ActivityCard({ activity }: ActivityCardProps) {
+export default function ActivityCard({ activity, onClick }: ActivityCardProps) {
     return (
-        <div className="cursor-pointer hover:bg-muted/50 transition-colors p-4 border rounded-lg">
+        <div className="cursor-pointer hover:bg-muted/50 transition-colors p-4 border rounded-lg" onClick={onClick}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
                     <div className="flex-1 min-w-0">
@@ -16,6 +17,9 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
                             <h3 className="font-semibold truncate">{activity.title}</h3>
                             <Badge variant="secondary" className="text-xs">
                                 {activity.isConfirmed ? "Confirmé" : "A confirmer"}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                                {activityTypeLabels[activity.type]}
                             </Badge>
                         </div>
                         {activity.description && (

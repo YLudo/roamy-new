@@ -53,7 +53,7 @@ export default function ActivitiesMap({ activities }: ActivitiesMapProps) {
 
         datedActivities.forEach((activity, index) => {
             const el = document.createElement('div');
-            el.className = "flex items-center justify-center w-8 h-8 font-bold text-white bg-blue-500 rounded-full shadow-lg border-2 border-white";
+            el.className = "flex items-center justify-center w-8 h-8 font-bold text-white bg-rose-500 rounded-full shadow-lg border-2 border-white";
             el.innerText = `${index + 1}`;
 
             const popup = new mapboxgl.Popup({ offset: 25 }).setText(activity.title);
