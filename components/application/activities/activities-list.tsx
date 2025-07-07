@@ -2,28 +2,51 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActivitiesFilters from "./activities-filters";
 import ActivityAddForm from "./activity-add-form";
+import ActivityCard from "./activity-card";
+import { pusherClient } from "@/lib/pusher";
+import { useTravelStore } from "@/stores/travel-store";
 
 interface ActivitiesListProps {
     travel: ITravel;
 }
 
 export default function ActivitiesList({ travel }: ActivitiesListProps) {
+    const { setCurrentTravel } = useTravelStore();
+
     const [searchTerm, setSearchTerm] = useState("");
     const [typeFilter, setTypeFilter] = useState<ActivityType>("all");
-    const [confirmationFilter, setConfirmationFilter] = useState<boolean>(false);
 
     const filteredActivities = travel.activities.filter((activity) => {
         const matchesSearch =
             activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             activity.description?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = typeFilter === "all" || activity.type === typeFilter;
-        const matchesConfirmation = activity.isConfirmed === confirmationFilter;
 
-        return matchesSearch && matchesType && matchesConfirmation;
+        return matchesSearch && matchesType;
     });
+
+    useEffect(() => {
+        if (!travel) return;
+
+        const channel = pusherClient.subscribe(`travel-${travel.id}`);
+
+        channel.bind("activities:new", (newActivity: IActivity) => {
+            if (!travel?.activities.some(a => a.id === newActivity.id)) {
+                setCurrentTravel({
+                    ...travel,
+                    activities: [...(travel?.activities ?? []), newActivity],
+                });
+            }
+        });
+
+        return () => {
+            pusherClient.unbind_all();
+            pusherClient.unsubscribe(`travel-${travel.id}`);
+        };
+    }, [setCurrentTravel, travel]);
 
     return (
         <>
@@ -43,12 +66,12 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                         setSearchTerm={setSearchTerm}
                         typeFilter={typeFilter}
                         setTypeFilter={setTypeFilter}
-                        confirmationFilter={confirmationFilter}
-                        setConfirmationFilter={setConfirmationFilter}
                     />
                     {filteredActivities.length > 0 ? (
                         <div className="space-y-4">
-
+                            {filteredActivities.map((activity) => (
+                                <ActivityCard key={activity.id} activity={activity} />
+                            ))}
                         </div>
                     ) : (
                         <div className="text-center py-6 px-6 bg-muted rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors">

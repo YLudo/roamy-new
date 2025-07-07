@@ -8,12 +8,10 @@ interface ActivitiesFiltersProps {
     setSearchTerm: (term: string) => void;
     typeFilter: ActivityType;
     setTypeFilter: (value: ActivityType) => void;
-    confirmationFilter: boolean;
-    setConfirmationFilter: (value: boolean) => void;
 }
 
 export default function ActivitiesFilters({
-    searchTerm, setSearchTerm, typeFilter, setTypeFilter, confirmationFilter, setConfirmationFilter,
+    searchTerm, setSearchTerm, typeFilter, setTypeFilter,
 }: ActivitiesFiltersProps) {
     return (
         <div className="flex flex-col sm:flex-row gap-4">
