@@ -20,7 +20,7 @@ export default function ActivitiesLayout({ travel }: ActivitiesLayoutProps) {
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <ActivitiesList travel={travel} />
-                <ActivitiesMap />
+                <ActivitiesMap activities={travel.activities} />
             </div>
         </div>
     );
