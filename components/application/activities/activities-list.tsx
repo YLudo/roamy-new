@@ -34,7 +34,7 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                             <CardTitle>Liste des activités</CardTitle>
                             <CardDescription>Gérez et filtrez vos activités</CardDescription>
                         </div>
-                        <ActivityAddForm />
+                        <ActivityAddForm travelId={travel.id} />
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">

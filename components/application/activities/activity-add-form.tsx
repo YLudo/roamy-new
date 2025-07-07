@@ -15,13 +15,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Euro, Loader2, Plus } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-export default function ActivityAddForm() {
+interface ActivityAddFormProps {
+    travelId: string;
+}
+
+export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
+
+    const [locationQuery, setLocationQuery] = useState("");
+    const [suggestions, setSuggestions] = useState<MapboxFeature[]>([]);
     
     const form = useForm<z.infer<typeof ActivitySchema>>({
         resolver: zodResolver(ActivitySchema),
@@ -32,14 +40,65 @@ export default function ActivityAddForm() {
             startDate: undefined,
             endDate: undefined,
             location: "",
+            latitude: undefined,
+            longitude: undefined,
             estimatedCost: "",
             isConfirmed: false,
         },
     });
 
+    const fetchSuggestions = useCallback(async (query: string) => {
+        if (!query) {
+            setSuggestions([]);
+            return;
+        }
+
+        const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&language=fr&country=FR`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            setSuggestions(data.features || []);
+        } catch (error) {
+            setSuggestions([]);
+        }
+    }, []);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchSuggestions(locationQuery);
+        }, 300);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [locationQuery, fetchSuggestions]);
+
     const onSubmit = (values: z.infer<typeof ActivitySchema>) => {
         startTransition(async () => {
-            console.log(values);
+            startTransition(async () => {
+                try {
+                    const response = await fetch(`/api/travels/${travelId}/activities`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(values),
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                    }
+
+                    toast.success("Activité ajoutée !", { description: result.message });
+                    setOpen(false);
+                    form.reset();
+                } catch (error: any) {
+                    toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de l'ajout de l'activité." });
+                }
+            })
         });
     }
 
@@ -122,7 +181,41 @@ export default function ActivityAddForm() {
                                     <FormItem>
                                         <FormLabel>Adresse</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Entrez l'adresse de l'activité..." {...field} />
+                                            <div className="relative">
+                                                <Input 
+                                                    placeholder="Entrez l'adresse de l'activité..." 
+                                                    {...field} 
+                                                    value={locationQuery}
+                                                    onChange={(e) => {
+                                                        setLocationQuery(e.target.value);
+                                                        field.onChange(e.target.value);
+                                                    }}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                                                />
+                                                {suggestions.length > 0 && (
+                                                    <ul className="absolute z-10 w-full bg-background border mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                        {suggestions.map((suggestion) => (
+                                                            <li
+                                                                key={suggestion.id}
+                                                                className="px-3 py-2 cursor-pointer hover:bg-accent"
+                                                                onClick={() => {
+                                                                    const selectedAddress = suggestion.place_name;
+                                                                    const [longitude, latitude] = suggestion.center;
+
+                                                                    form.setValue('location', selectedAddress, { shouldValidate: true });
+                                                                    form.setValue('latitude', latitude);
+                                                                    form.setValue('longitude', longitude);
+
+                                                                    setLocationQuery(selectedAddress);
+                                                                    setSuggestions([]);
+                                                                }}
+                                                            >
+                                                                {suggestion.place_name}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

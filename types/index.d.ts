@@ -65,7 +65,7 @@ interface IActivity {
 type ActivityType =
   | "all"
   | "transport" 
-  | "accomodation" 
+  | "accommodation" 
   | "restaurant" 
   | "sightseeing" 
   | "entertainment" 
@@ -107,7 +107,7 @@ interface IExpenseParticipant {
 
 type ExpenseCategory =
   | "all"
-  | "accomodation"
+  | "accommodation"
   | "transportation"
   | "food"
   | "drinks"
@@ -127,4 +127,10 @@ interface IMessage {
 
     trip?: ITravel;
     sender?: IUser;
+}
+
+interface MapboxFeature {
+    id: string;
+    place_name: string;
+    center: [number, number];
 }

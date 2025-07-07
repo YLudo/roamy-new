@@ -51,7 +51,7 @@ export const expenseCategoryLabels: Record<string, string> = {
 
 export const activityTypeLabels: Record<string, string> = {
   transport: "Transport",
-  accomodation: "Hébergement",
+  accommodation: "Hébergement",
   restaurant: "Restaurant",
   sightseeing: "Tourisme",
   entertainment: "Divertissement",

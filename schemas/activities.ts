@@ -11,7 +11,7 @@ export const ActivitySchema = z.object({
         .optional(),
     type: z
         .enum(
-            ["transport", "accomodation", "restaurant", "sightseeing", "entertainment", "meeting", "other"],
+            ["transport", "accommodation", "restaurant", "sightseeing", "entertainment", "meeting", "other"],
             {
                 message: "Vous devez spécifier un type valide.",
             }
@@ -29,6 +29,12 @@ export const ActivitySchema = z.object({
         .optional(),
     location: z
         .string()
+        .optional(),
+    latitude: z
+        .number()
+        .optional(),
+    longitude: z
+        .number()
         .optional(),
     estimatedCost: z
         .string()
