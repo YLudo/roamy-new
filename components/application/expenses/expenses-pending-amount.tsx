@@ -16,10 +16,10 @@ export default function ExpensesPendingAmount({ expenses }: ExpensesPendingAmoun
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium">En attente</CardTitle>
-                <TrendingDown className="size-4 text-red-600" />
+                <TrendingDown className="size-4 text-primary" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-red-600">{formatCurrency(pendingAmount, "EUR")}</div>
+                <div className="text-2xl font-bold">{formatCurrency(pendingAmount, "EUR")}</div>
                 <p className="text-xs text-muted-foreground">À rembourser</p>
             </CardContent>
         </Card>

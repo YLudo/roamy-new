@@ -12,10 +12,10 @@ export default function ActivitiesPending({ activities }: ActivitiesPendingProps
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium">Activités non confirmées</CardTitle>
-                <XCircle className="size-4 text-destructive" />
+                <XCircle className="size-4 text-primary" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-destructive">
+                <div className="text-2xl font-bold">
                     {pendingCount}
                 </div>
                 <p className="text-xs text-muted-foreground">En attente de confirmation</p>
