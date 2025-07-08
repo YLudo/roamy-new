@@ -22,6 +22,7 @@ interface ITravel {
     participants: IParticipant[];
     expenses: IExpense[];
     messages: IMessage[];
+    activities: IActivity[];
 }
 
 interface IParticipant {
@@ -38,6 +39,38 @@ interface IParticipant {
     user: IUser;
     inviter?: IUser | null;
 }
+
+interface IActivity {
+    id: string;
+    tripId: string;
+    title: string;
+    description?: string | null;
+    type: ActivityType;
+    startDate: Date;
+    location?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    estimatedCost?: number | null;
+    currency: string;
+    isConfirmed: boolean;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    trip?: ITravel;
+    creator?: IUser;
+}
+
+type ActivityType =
+  | "all"
+  | "transport" 
+  | "accommodation" 
+  | "restaurant" 
+  | "sightseeing" 
+  | "entertainment" 
+  | "entertainment" 
+  | "meeting" 
+  | "other";
 
 interface IExpense {
     id: string;
@@ -73,7 +106,7 @@ interface IExpenseParticipant {
 
 type ExpenseCategory =
   | "all"
-  | "accomodation"
+  | "accommodation"
   | "transportation"
   | "food"
   | "drinks"
@@ -93,4 +126,10 @@ interface IMessage {
 
     trip?: ITravel;
     sender?: IUser;
+}
+
+interface MapboxFeature {
+    id: string;
+    place_name: string;
+    center: [number, number];
 }

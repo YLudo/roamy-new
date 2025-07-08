@@ -16,10 +16,10 @@ export default function ExpensesSettledAmount({ expenses }: ExpensesSettledAmoun
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium">Montant réglé</CardTitle>
-                <TrendingUp className="size-4 text-green-600" />
+                <TrendingUp className="size-4 text-primary" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-green-600">{formatCurrency(settledAmount, "EUR")}</div>
+                <div className="text-2xl font-bold">{formatCurrency(settledAmount, "EUR")}</div>
                 <p className="text-xs text-muted-foreground">Remboursements effectués</p>
             </CardContent>
         </Card>

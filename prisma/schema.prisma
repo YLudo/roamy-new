@@ -25,6 +25,7 @@ model User {
   paidExpenses        Expense[]            @relation("PaidExpenses")
   expenseParticipants ExpenseParticipant[]
   messages            Message[]
+  activities          Activity[]
 }
 
 model Account {
@@ -76,6 +77,7 @@ model Trip {
   participants TripParticipant[]
   expenses     Expense[]
   messages     Message[]
+  activities   Activity[]
 }
 
 enum TripStatus {
@@ -119,6 +121,37 @@ enum TripParticipantStatus {
   invited
   accepted
   declined
+}
+
+model Activity {
+  id            String       @id @default(uuid())
+  tripId        String
+  title         String
+  description   String?
+  type          ActivityType @default(other)
+  startDate     DateTime
+  location      String?
+  latitude      Decimal?     @db.Decimal(10, 8)
+  longitude     Decimal?     @db.Decimal(11, 8)
+  estimatedCost Decimal?     @db.Decimal(10, 2)
+  currency      String       @default("EUR")
+  isConfirmed   Boolean      @default(false)
+  createdBy     String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  trip    Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+enum ActivityType {
+  transport
+  accommodation
+  restaurant
+  sightseeing
+  entertainment
+  meeting
+  other
 }
 
 model Expense {

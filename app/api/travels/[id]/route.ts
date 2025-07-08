@@ -41,6 +41,17 @@ export async function GET(
                         },
                     },
                 },
+                activities: {
+                    include: {
+                        creator: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            }
+                        },
+                    }
+                },
                 expenses: {
                     include: {
                         participants: {
