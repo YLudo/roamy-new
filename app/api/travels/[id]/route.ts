@@ -67,6 +67,7 @@ export async function GET(
                         sender: true,
                     },
                 },
+                tasks: true,
             },
         });
 

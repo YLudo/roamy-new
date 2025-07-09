@@ -77,28 +77,26 @@ export default function ActivityAddForm({ travelId }: ActivityAddFormProps) {
 
     const onSubmit = (values: z.infer<typeof ActivitySchema>) => {
         startTransition(async () => {
-            startTransition(async () => {
-                try {
-                    const response = await fetch(`/api/travels/${travelId}/activities`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(values),
-                    });
+            try {
+                const response = await fetch(`/api/travels/${travelId}/activities`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(values),
+                });
 
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.message || "Une erreur inconnue s'est produite.");
-                    }
-
-                    toast.success("Activité ajoutée !", { description: result.message });
-                    setOpen(false);
-                    form.reset();
-                } catch (error: any) {
-                    toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de l'ajout de l'activité." });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
                 }
-            })
+
+                toast.success("Activité ajoutée !", { description: result.message });
+                setOpen(false);
+                form.reset();
+            } catch (error: any) {
+                toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de l'ajout de l'activité." });
+            }
         });
     }
 

@@ -1,12 +1,12 @@
 import { clsx, type ClassValue } from "clsx"
-import { Euro, LayoutGrid, Map } from "lucide-react"
+import { Euro, LayoutGrid, Map, PenBox } from "lucide-react"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getMenuList(pathname: string) {
+export function getGeneralMenuList(pathname: string) {
   const match = pathname.match(/^\/travels\/([^\/]+)/);
   const travelBase = match ? `/travels/${match[1]}` : null;
 
@@ -17,6 +17,20 @@ export function getMenuList(pathname: string) {
       icon: LayoutGrid,
       active: /^\/travels\/[^\/]+$/.test(pathname)
     },
+    {
+      href: `${travelBase}/tasks`,
+      label: "Tâches",
+      icon: PenBox,
+      active: pathname.includes("/tasks"),
+    }
+  ]
+}
+
+export function getTravelMenuList(pathname: string) {
+  const match = pathname.match(/^\/travels\/([^\/]+)/);
+  const travelBase = match ? `/travels/${match[1]}` : null;
+
+  return [
     {
       href: `${travelBase}/activities`,
       label: "Activités",

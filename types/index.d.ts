@@ -23,6 +23,7 @@ interface ITravel {
     expenses: IExpense[];
     messages: IMessage[];
     activities: IActivity[];
+    tasks: ITask[];
 }
 
 interface IParticipant {
@@ -133,3 +134,15 @@ interface MapboxFeature {
     place_name: string;
     center: [number, number];
 }
+
+interface ITask {
+    id: string;
+    tripId: string;
+    title: string;
+    description?: string;
+    status: TaskStatus;
+    createdAt: string;
+    updatedAt: string;
+}
+
+type TaskStatus = "TODO" | "DOING" | "DONE";
