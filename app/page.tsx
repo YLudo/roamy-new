@@ -13,6 +13,7 @@ import CreateTripStepper from "@/components/application/trips/create-trip-steppe
 import TripsList from "@/components/application/trips/trips-list";
 import { pusherClient } from "@/lib/pusher";
 import { useTravelStore } from "@/stores/travel-store";
+import InvitationsList from "@/components/application/trips/invitations-list";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -31,9 +32,12 @@ export default function DashboardPage() {
         const channelName = `user-${session?.user.id}`;
         const channel = pusherClient.subscribe(channelName);
 
-        channel.bind("travels:new", () => {
+        const reloadTravels = () => {
             fetchTravels();
-        });
+        }
+
+        channel.bind("travels:new", reloadTravels);
+        channel.bind("invitations:new", reloadTravels);
 
         return () => {
             pusherClient.unbind_all();
@@ -79,13 +83,17 @@ export default function DashboardPage() {
                     </Link>
                 </div>
                 <h1 className="text-2xl font-bold text-foreground">Bonjour, <span className="text-primary">{session?.user.name}</span></h1>
-                <div className="flex-1">
+                <div className="flex-1 space-y-12">
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl text-foreground font-medium">Mes voyages</h2>
                             <CreateTripStepper />
                         </div>
                         <TripsList isLoading={isLoading} travels={travels} />
+                    </div>
+                    <div className="space-y-6">
+                        <h2 className="text-xl text-foreground font-medium">Mes invitations</h2>
+                        <InvitationsList isLoading={isLoading} travels={travels} />
                     </div>
                 </div>
                 <div className="flex items-center justify-between mt-auto pt-6 border-t">
@@ -115,14 +123,14 @@ export default function DashboardPage() {
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                                 <Link href="#" className="flex items-center gap-2 cursor-pointer">
-                                <Settings className="size-4" />
-                                Paramètres
+                                    <Settings className="size-4" />
+                                    Paramètres
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                                 <Link href="#" className="flex items-center gap-2 cursor-pointer">
-                                <Bell className="size-4" />
-                                Notifications
+                                    <Bell className="size-4" />
+                                    Notifications
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />

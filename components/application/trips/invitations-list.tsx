@@ -1,24 +1,24 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plane } from "lucide-react";
-import TripCard from "./trip-card";
+import { Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
+import InvitationCard from "./invitation-card";
 
-interface TripsListProps {
+interface InvitationsListProps {
     isLoading: boolean;
     travels: ITravel[];
 }
 
-export default function TripsList({ isLoading, travels }: TripsListProps) {
+export default function InvitationsList({ isLoading, travels }: InvitationsListProps) {
     const { data: session } = useSession();
 
-    const acceptedTravels = () => {
-        if (travels.length <= 0 || !session?.user.id) return [];
+    const invitedTravels = () => {
+        if (travels.length <= 0 && !session?.user.id) return [];
         return travels.filter((travel) => {
-            return travel.participants.some((p) => p.userId === session?.user.id && p.status === "accepted");
+            return travel.participants.some((p) => p.userId === session?.user.id && p.status === "invited");
         });
     }
 
-    const filteredTravels = acceptedTravels();
+    const filteredTravels = invitedTravels();
 
     if (isLoading) {
         return <Skeleton className="h-[200px] w-full rounded-xl" />
@@ -28,10 +28,10 @@ export default function TripsList({ isLoading, travels }: TripsListProps) {
         return (
             <div className="text-center py-12 px-6 bg-muted rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors">
                 <div className="flex flex-col items-center space-y-2">
-                    <Plane className="size-8 text-primary" />
+                    <Mail className="size-8 text-primary" />
                     <div className="space-y-2">
-                        <h3 className="text font-semibold text-foreground">Aucun voyage planifié</h3>
-                        <p className="text-sm text-muted-foreground">Commencez votre aventure en créant votre premier voyage !</p>
+                        <h3 className="text font-semibold text-foreground">Aucun invitation reçue</h3>
+                        <p className="text-sm text-muted-foreground">N'attendez pas et créez votre propre voyage !</p>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@ export default function TripsList({ isLoading, travels }: TripsListProps) {
     return (
         <div className="grid gap-4">
             {filteredTravels.map((travel, index) => (
-                <TripCard key={index} trip={travel} showActions />
+                <InvitationCard key={index} travel={travel} />
             ))}
         </div>
     );
