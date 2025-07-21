@@ -2,7 +2,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
-import { Calendar, MapPin, User } from "lucide-react";
+import { Calendar, Loader2, MapPin, User } from "lucide-react";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 const statusConfig = {
     planning: { label: "Planification", color: "bg-blue-100 text-blue-800 border-blue-200" },
@@ -17,11 +19,36 @@ interface InvitationCardProps {
 }
 
 export default function InvitationCard({ travel }: InvitationCardProps) {
+    const [isPending, startTransition] = useTransition();
+
     const getDestination = () => {
         if (travel.destinationCity && travel.destinationCountry) {
             return `${travel.destinationCity}, ${travel.destinationCountry}`
         }
         return travel.destinationCountry || travel.destinationCity || "Destination non définie"
+    }
+
+    const handleInvitation = (status: "accepted" | "declined") => {
+        startTransition(async () => {
+            try {
+                const response = await fetch(`/api/travels/${travel.id}/invitations`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status }),
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                }
+
+                toast.success(status === "accepted" ? "Invitation acceptée !" : "Invitation refusée !", { description: result.message });
+            } catch (error: any) {
+                toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de la réponse à l'invitation." });
+            }
+        });
     }
 
     return (
@@ -59,8 +86,25 @@ export default function InvitationCard({ travel }: InvitationCardProps) {
                     </div>
                 </div>
                 <div className="flex justify-end gap-4">
-                    <Button variant="ghost">Refuser</Button>
-                    <Button>Accepter</Button>
+                    <Button 
+                        variant="ghost"
+                        onClick={() => handleInvitation("declined")}
+                        disabled={isPending}
+                    >
+                        {isPending 
+                            ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            : "Refuser"
+                        }
+                    </Button>
+                    <Button
+                        onClick={() => handleInvitation("accepted")}
+                        disabled={isPending}
+                    >
+                        {isPending 
+                            ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            : "Accepter"
+                        }
+                    </Button>
                 </div>
             </CardContent>
         </Card>

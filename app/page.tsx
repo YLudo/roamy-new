@@ -38,6 +38,7 @@ export default function DashboardPage() {
 
         channel.bind("travels:new", reloadTravels);
         channel.bind("invitations:new", reloadTravels);
+        channel.bind("invitations:respond", reloadTravels);
 
         return () => {
             pusherClient.unbind_all();

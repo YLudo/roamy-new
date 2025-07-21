@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { pusherServer } from "@/lib/pusher";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -65,8 +66,28 @@ export async function PATCH(
             },
             data: {
                 status: status,
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    }
+                }
             }
         });
+
+        await pusherServer.trigger(
+            `travel-${travelId}`,
+            "invitations:respond",
+            updatedParticipant
+        );
+
+        await pusherServer.trigger(
+            `user-${session.user.id}`,
+            "invitations:respond",
+            updatedParticipant
+        );
 
         if (status === "accepted") {
             return NextResponse.json(

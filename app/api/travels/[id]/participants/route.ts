@@ -154,6 +154,7 @@ export async function POST(
             { status: 201 },
         );
     } catch (error) {
+        console.log(error);
         return NextResponse.json(
             { message: "Erreur lors de l'ajout du participant." },
             { status: 500 },
