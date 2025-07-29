@@ -26,6 +26,7 @@ model User {
   expenseParticipants ExpenseParticipant[]
   messages            Message[]
   activities          Activity[]
+  plaidItems          PlaidItem[]
 }
 
 model Account {
@@ -225,4 +226,16 @@ enum TaskStatus {
   TODO
   DOING
   DONE
+}
+
+model PlaidItem {
+  id              String         @id @default(cuid())
+  accessToken     String
+  itemId          String         @unique
+  institutionId   String
+  institutionName String
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
