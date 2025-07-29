@@ -1,8 +1,16 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher";
+import formData from "form-data";
+import Mailgun from "mailgun.js";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+    username: 'api',
+    key: process.env.MAILGUN_API_KEY!,
+});
 
 export async function POST(
     request: Request,
@@ -117,11 +125,36 @@ export async function POST(
             participant
         );
 
+        await pusherServer.trigger(
+            `user-${targetUser.id}`,
+            "invitations:new",
+            participant,
+        );
+
+        const templateData = {
+            username: targetUser.name,
+            inviter_name: session.user.name,
+            destination: travel.title,
+            dates: travel.startDate && travel.endDate ? `De ${new Date(travel.startDate).toLocaleDateString()} à ${new Date(travel.endDate).toLocaleDateString()}` : "Non spécifié",
+            link: `${process.env.NEXTAUTH_URL}`,
+        };
+
+        const messageData = {
+            from: "Roamy <no-reply@roamy.fr>",
+            to: targetUser.email,
+            subject: "On vous a invité à rejoindre un voyage sur Roamy !",
+            template: "travel_invitation",
+            'h:X-Mailgun-Variables': JSON.stringify(templateData),
+        };
+
+        await mg.messages.create(process.env.MAILGUN_DOMAIN!, messageData);
+
         return NextResponse.json(
             { message: "Le participant a été invité avec succès." },
             { status: 201 },
-        )
+        );
     } catch (error) {
+        console.log(error);
         return NextResponse.json(
             { message: "Erreur lors de l'ajout du participant." },
             { status: 500 },

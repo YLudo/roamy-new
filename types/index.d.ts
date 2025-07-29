@@ -19,6 +19,7 @@ interface ITravel {
     createdAt: Date;
     updatedAt: Date;
 
+    creator: IUser;
     participants: IParticipant[];
     expenses: IExpense[];
     messages: IMessage[];

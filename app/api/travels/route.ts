@@ -88,6 +88,18 @@ export async function GET(request: Request) {
                     { participants: { some: { userId: session.user.id } } }
                 ]
             },
+            include: {
+                creator: {
+                    select: {
+                        name: true,
+                    },
+                },
+                participants: {
+                    where: {
+                        userId: session.user.id,
+                    },
+                },
+            },
             orderBy: { startDate: "desc" },
         });
 

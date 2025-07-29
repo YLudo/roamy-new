@@ -49,6 +49,15 @@ export default function TripParticipants({ travelId, participants }: TripPartici
             }
         });
 
+        channel.bind("invitations:respond", (updatedParticipant: IParticipant) => {
+            setCurrentTravel({
+                ...currentTravel,
+                participants: currentTravel.participants.map(p =>
+                    p.id === updatedParticipant.id ? updatedParticipant : p,
+                ),
+            });
+        });
+
         return () => {
             pusherClient.unbind_all();
             pusherClient.unsubscribe(`travel-${travelId}`);
