@@ -1,6 +1,15 @@
 import prisma from "@/lib/prisma";
 import { hash } from "bcryptjs";
+import { randomUUID } from "crypto";
+import FormData from "form-data";
+import Mailgun from "mailgun.js";
 import { NextResponse } from "next/server";
+
+const mailgun = new Mailgun(FormData);
+const mg = mailgun.client({
+    username: 'api',
+    key: process.env.MAILGUN_API_KEY!,
+});
 
 export async function POST(request: Request) {
     try {
@@ -37,6 +46,28 @@ export async function POST(request: Request) {
                 password: hashedPassword,
             },
         });
+
+        const token = await prisma.activateToken.create({
+            data: {
+                token: `${randomUUID()}${randomUUID()}`.replace(/-/g, ''),
+                userId: user.id,
+            },
+        });
+
+        const templateData = {
+            username: user.name,
+            link: `${process.env.NEXTAUTH_URL}/auth/activate/${token.token}`,
+        };
+
+        const messageData = {
+            from: "Roamy <hello@roamy.fr>",
+            to: user.email,
+            subject: "Bienvenue sur Roamy - Activez votre compte dès maintenant !",
+            template: "Mail d'activation",
+            'h:X-Mailgun-Variables': JSON.stringify(templateData),
+        };
+
+        await mg.messages.create(process.env.MAILGUN_DOMAIN!, messageData);
 
         return NextResponse.json({ message: "Veuillez vérifier votre adresse e-mail dans votre boîte de réception." }, { status: 201 });
     } catch (e) {
