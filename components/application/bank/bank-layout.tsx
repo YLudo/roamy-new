@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { pusherClient } from "@/lib/pusher";
 import BankBalance from "./bank-balance";
 import BankHistory from "./bank-history";
+import { useTravelStore } from "@/stores/travel-store";
 
 export default function BankLayout() {
     const { data: session } = useSession();
+    const { currentTravel, setCurrentTravel } = useTravelStore();
 
     const [accounts, setAccounts] = useState([]);
     const [isPending, startTransition] = useTransition();
@@ -34,6 +36,26 @@ export default function BankLayout() {
             pusherClient.unsubscribe(channelName);
         };
     }, [fetchAccounts, session?.user.id]);
+
+    useEffect(() => {
+        if (!currentTravel) return;
+
+        const channel = pusherClient.subscribe(`travel-${currentTravel.id}`);
+
+        channel.bind("expenses:new", (newExpense: IExpense) => {
+            if (!currentTravel?.expenses.some(e => e.id === newExpense.id)) {
+                setCurrentTravel({
+                    ...currentTravel,
+                    expenses: [...(currentTravel?.expenses ?? []), newExpense],
+                });
+            }
+        });
+
+        return () => {
+            pusherClient.unbind_all();
+            pusherClient.unsubscribe(`travel-${currentTravel.id}`);
+        };
+    }, [setCurrentTravel, currentTravel]);
 
     useEffect(() => {
         fetchAccounts();

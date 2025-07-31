@@ -4,6 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowDownIcon, ArrowUpIcon, MoreVertical, Plus } from "lucide-react";
+import { useState } from "react";
+import BankAddBudget from "./bank-add-budget";
 
 interface BankTransactionsProps {
     transactions: any;
@@ -11,6 +13,14 @@ interface BankTransactionsProps {
 }
 
 export default function BankTransactions({ transactions, isLoading }: BankTransactionsProps) {
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<any | null>(null);
+
+    const handleAddToTravel = (transaction: any) => {
+        setSelectedTransaction(transaction);
+        setIsModalOpen(true);
+    }
+
     if (isLoading) {
         return <Skeleton className="w-full h-[300px] rounded-xl" />
     }
@@ -26,59 +36,68 @@ export default function BankTransactions({ transactions, isLoading }: BankTransa
     console.log(transactions);
 
     return (
-        <Table>
-            <TableHeader className="bg-secondary">
-                <TableRow>
-                    <TableHead className="font-medium text-secondary-foreground">Transaction</TableHead>
-                    <TableHead className="font-medium text-secondary-foreground">Montant</TableHead>
-                    <TableHead className="font-medium text-secondary-foreground">Status</TableHead>
-                    <TableHead className="font-medium text-secondary-foreground">Date</TableHead>
-                    <TableHead className="font-medium text-secondary-foreground">Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {transactions.map((transaction: any, index: number) => (
-                    <TableRow key={index} className="hover:bg-muted/50">
-                        <TableCell className="max-w-[250px]">
-                            <div className="font-medium truncate">{transaction.merchantName || transaction.name}</div>
-                        </TableCell>
-                        <TableCell>
-                            <div className="flex items-center gap-1.5">
-                                {transaction.amount < 0 ? (
-                                    <ArrowUpIcon className="w-3.5 h-3.5 text-green-500" />
-                                ) : (
-                                    <ArrowDownIcon className="w-3.5 h-3.5 text-red-500" />
-                                )}
-                                <span className={`font-medium ${transaction.amount < 0 ? "text-green-500" : "text-red-500"}`}>
-                                    {formatCurrency(transaction.amount, "EUR")}
-                                </span>
-                            </div>
-                        </TableCell>
-                        <TableCell>
-                            <Badge
-                                variant={transaction.pending ? "secondary" : "default"}
-                                className={!transaction.pending ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
-                            >
-                                {transaction.pending ? "En attente" : "Validé"}
-                            </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{formatDate(transaction.date)}</TableCell>
-                        <TableCell className="flex justify-center">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <MoreVertical className="h-4 w-4 hover:cursor-pointer" />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem className="hover:cursor-pointer">
-                                        <Plus className="w-4 h-4 mr-3 text-muted-foreground" />
-                                        Ajouter à un voyage
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
+        <>
+            <Table>
+                <TableHeader className="bg-secondary">
+                    <TableRow>
+                        <TableHead className="font-medium text-secondary-foreground">Transaction</TableHead>
+                        <TableHead className="font-medium text-secondary-foreground">Montant</TableHead>
+                        <TableHead className="font-medium text-secondary-foreground">Status</TableHead>
+                        <TableHead className="font-medium text-secondary-foreground">Date</TableHead>
+                        <TableHead className="font-medium text-secondary-foreground">Actions</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {transactions.map((transaction: any, index: number) => (
+                        <TableRow key={index} className="hover:bg-muted/50">
+                            <TableCell className="max-w-[250px]">
+                                <div className="font-medium truncate">{transaction.merchantName || transaction.name}</div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-1.5">
+                                    {transaction.amount < 0 ? (
+                                        <ArrowUpIcon className="w-3.5 h-3.5 text-green-500" />
+                                    ) : (
+                                        <ArrowDownIcon className="w-3.5 h-3.5 text-red-500" />
+                                    )}
+                                    <span className={`font-medium ${transaction.amount < 0 ? "text-green-500" : "text-red-500"}`}>
+                                        {formatCurrency(transaction.amount, "EUR")}
+                                    </span>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Badge
+                                    variant={transaction.pending ? "secondary" : "default"}
+                                    className={!transaction.pending ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
+                                >
+                                    {transaction.pending ? "En attente" : "Validé"}
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">{formatDate(transaction.date)}</TableCell>
+                            <TableCell className="flex justify-center">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <MoreVertical className="h-4 w-4 hover:cursor-pointer" />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => handleAddToTravel(transaction)}>
+                                            <Plus className="w-4 h-4 mr-3 text-muted-foreground" />
+                                            Ajouter à un voyage
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            {isModalOpen && (
+                <BankAddBudget
+                    isModalOpen={isModalOpen}
+                    setIsModalOpen={setIsModalOpen}
+                    transaction={selectedTransaction}
+                />
+            )}
+        </>
     );
 }

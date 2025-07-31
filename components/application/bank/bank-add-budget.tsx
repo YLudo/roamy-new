@@ -1,43 +1,53 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, expenseCategoryLabels, formatCurrency } from "@/lib/utils";
 import { ExpenseSchema } from "@/schemas/expenses";
+import { useTravelStore } from "@/stores/travel-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarIcon, Euro, Loader2, Plus, Users } from "lucide-react";
+import { CalendarIcon, Euro, Loader2, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState, useTransition } from "react";
+import { Dispatch, SetStateAction, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import z from "zod";
 
-interface ExpenseAddFormProps {
-    travel: ITravel;
+interface BankAddBudgetProps {
+    isModalOpen: boolean;
+    setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+    transaction: any;
 }
 
-export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
+export default function BankAddBudget({
+    isModalOpen,
+    setIsModalOpen,
+    transaction,
+}: BankAddBudgetProps) {
     const { data: session } = useSession();
-    const [open, setOpen] = useState(false);
+    const { currentTravel } = useTravelStore();
     const [isPending, startTransition] = useTransition();
     const [participantAmounts, setParticipantAmounts] = useState<Record<string, string>>({});
+
+    if (!currentTravel) {
+        return <Skeleton className="w-full h-[300px] rounded-xl" />
+    }
 
     const form = useForm<z.infer<typeof ExpenseSchema>>({
         resolver: zodResolver(ExpenseSchema),
         defaultValues: {
-            title: "",
+            title: transaction.merchantName || transaction.name || "",
             description: "",
-            amount: "",
+            amount: Math.abs(transaction.amount).toString(),
             category: "other",
             paidBy: session?.user.id || "",
             location: "",
@@ -56,7 +66,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
     const onSubmit = (values: z.infer<typeof ExpenseSchema>) => {
         startTransition(async () => {
             try {
-                const response = await fetch(`/api/travels/${travel.id}/expenses`, {
+                const response = await fetch(`/api/travels/${currentTravel.id}/expenses`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -70,7 +80,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                 }
 
                 toast.success("Dépense ajoutée !", { description: result.message });
-                setOpen(false);
+                setIsModalOpen(false);
                 form.reset();
             } catch (error: any) {
                 toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de l'ajout de la dépense." });
@@ -108,7 +118,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
 
     const handleEqualSplit = () => {
         const totalAmount = Number.parseFloat(watchedAmount) || 0;
-        const availableUsers = travel.participants.filter((participant) => participant.userId !== watchedPaidBy);
+        const availableUsers = currentTravel.participants.filter((participant: IParticipant) => participant.userId !== watchedPaidBy);
         const totalParticipants = availableUsers.length + 1;
         const amountPerPerson = totalAmount / totalParticipants;
 
@@ -122,7 +132,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
 
         form.setValue(
             "participants",
-            availableUsers.map((participant) => participant.userId),
+            availableUsers.map((participant: IParticipant) => participant.userId),
         );
         form.setValue("participantAmounts", newAmounts);
         setParticipantAmounts(newAmounts);
@@ -147,14 +157,8 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
     const remainingAmount = totalAmount - participantTotal;
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                    <Plus className="size-4" />
-                    Nouvelle dépense
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="!w-full !max-w-2xl max-h-[90vh] overflow-y-auto">
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogContent className="!w-full !max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Ajouter une dépense</DialogTitle>
                     <DialogDescription>Créer une nouvelle dépense pour votre voyage</DialogDescription>
@@ -249,7 +253,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {travel.participants?.map((participant) => (
+                                                        {currentTravel.participants?.map((participant) => (
                                                             <SelectItem key={participant.userId} value={participant.userId}>
                                                                 {participant.user?.name}
                                                             </SelectItem>
@@ -362,7 +366,7 @@ export default function ExpenseAddForm({ travel }: ExpenseAddFormProps) {
                                                 </div>
                                             )}
                                             <div className="space-y-3 max-h-64 overflow-y-auto">
-                                                {travel.participants
+                                                {currentTravel.participants
                                                     .filter((participant) => participant.userId !== watchedPaidBy)
                                                     .map((participant) => (
                                                         <div key={participant.userId} className="flex items-center justify-between p-3 border rounded-lg">
