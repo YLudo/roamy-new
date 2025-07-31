@@ -2,7 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PlaidLink from "./plaid-link";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function BankInformations({ account, isLoading }) {
+interface BankInformationsProps {
+    account: any;
+    isLoading: boolean;
+}
+
+export default function BankInformations({ account, isLoading }: BankInformationsProps) {
     if (isLoading) {
         return <Skeleton className="w-full h-[150px] rounded-xl" />
     }

@@ -5,7 +5,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowDownIcon, ArrowUpIcon, MoreVertical, Plus } from "lucide-react";
 
-export default function BankTransactions({ transactions, isLoading }) {
+interface BankTransactionsProps {
+    transactions: any;
+    isLoading: boolean;
+}
+
+export default function BankTransactions({ transactions, isLoading }: BankTransactionsProps) {
     if (isLoading) {
         return <Skeleton className="w-full h-[300px] rounded-xl" />
     }
@@ -32,7 +37,7 @@ export default function BankTransactions({ transactions, isLoading }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {transactions.map((transaction, index) => (
+                {transactions.map((transaction: any, index: number) => (
                     <TableRow key={index} className="hover:bg-muted/50">
                         <TableCell className="max-w-[250px]">
                             <div className="font-medium truncate">{transaction.merchantName || transaction.name}</div>
