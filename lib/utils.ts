@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
-import { DollarSign, Euro, LayoutGrid, Map, PenBox } from "lucide-react"
+import { DollarSign, Euro, LayoutGrid, Map, PenBox, ScrollText } from "lucide-react"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -16,6 +16,12 @@ export function getGeneralMenuList(pathname: string) {
       label: "Tableau de bord",
       icon: LayoutGrid,
       active: /^\/travels\/[^\/]+$/.test(pathname)
+    },
+    {
+      href: `${travelBase}/polls`,
+      label: "Sondages",
+      icon: ScrollText,
+      active: pathname.includes("/polls"),
     },
     {
       href: `${travelBase}/tasks`,

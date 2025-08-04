@@ -27,6 +27,8 @@ model User {
   messages            Message[]
   activities          Activity[]
   plaidItems          PlaidItem[]
+  polls               Poll[]
+  votes               Vote[]
 }
 
 model Account {
@@ -80,6 +82,7 @@ model Trip {
   messages     Message[]
   activities   Activity[]
   tasks        Task[]
+  polls        Poll[]
 }
 
 enum TripStatus {
@@ -238,4 +241,38 @@ model PlaidItem {
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+}
+
+model Poll {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  hasVoted    Boolean      @default(false)
+  pollOptions PollOption[]
+  tripId      String
+  trip        Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model PollOption {
+  id        String   @id @default(cuid())
+  text      String
+  votes     Vote[]
+  pollId    String
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updated   DateTime @updatedAt
+}
+
+model Vote {
+  id           String     @id @default(cuid())
+  pollOptionId String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }

@@ -25,6 +25,7 @@ interface ITravel {
     messages: IMessage[];
     activities: IActivity[];
     tasks: ITask[];
+    polls: IPoll[];
 }
 
 interface IParticipant {
@@ -147,3 +148,40 @@ interface ITask {
 }
 
 type TaskStatus = "TODO" | "DOING" | "DONE";
+
+interface IPoll {
+    id: string;
+    title: string;
+    description?: string | null;
+    hasVoted: boolean;
+    pollOptions: IPollOption[];
+    travelId: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    travel?: ITravel;
+    user?: IUser;
+}
+
+interface IPollOption {
+    id: string;
+    text: string;
+    pollId: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    poll: IPoll;
+    votes: IVote[];
+}
+
+interface IVote {
+    id: string;
+    pollOptionId: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+    pollOption: IPollOption;
+    user: IUser;
+}

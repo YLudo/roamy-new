@@ -68,6 +68,32 @@ export async function GET(
                     },
                 },
                 tasks: true,
+                polls: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            }
+                        },
+                        pollOptions: {
+                            include: {
+                                votes: {
+                                    include: {
+                                        user: {
+                                            select: {
+                                                id: true,
+                                                name: true,
+                                                email: true,
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
         });
 
