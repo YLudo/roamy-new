@@ -5,13 +5,13 @@ import FormData from "form-data";
 import Mailgun from "mailgun.js";
 import { NextResponse } from "next/server";
 
-const mailgun = new Mailgun(FormData);
-const mg = mailgun.client({
-    username: 'api',
-    key: process.env.MAILGUN_API_KEY!,
-});
-
 export async function POST(request: Request) {
+    const mailgun = new Mailgun(FormData);
+    const mg = mailgun.client({
+        username: 'api',
+        key: process.env.MAILGUN_API_KEY!,
+    });
+
     try {
         const { name, email, password } = await request.json();
 

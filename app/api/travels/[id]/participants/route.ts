@@ -6,16 +6,16 @@ import Mailgun from "mailgun.js";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({
-    username: 'api',
-    key: process.env.MAILGUN_API_KEY!,
-});
-
 export async function POST(
     request: Request,
     context: { params: Promise<{ id: string }> },
 ) {
+    const mailgun = new Mailgun(formData);
+    const mg = mailgun.client({
+        username: 'api',
+        key: process.env.MAILGUN_API_KEY!,
+    });
+
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user.id) {
