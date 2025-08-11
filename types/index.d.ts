@@ -155,12 +155,12 @@ interface IPoll {
     description?: string | null;
     hasVoted: boolean;
     pollOptions: IPollOption[];
-    travelId: string;
+    tripId: string;
     userId: string;
     createdAt: Date;
     updatedAt: Date;
 
-    travel?: ITravel;
+    trip?: ITravel;
     user?: IUser;
 }
 

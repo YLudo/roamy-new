@@ -47,7 +47,7 @@ export default function PollsLayout({ travel }: PollsLayoutProps) {
             </CardHeader>
             <CardContent>
                 {travel.polls.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {travel.polls.map((poll) => (
                             <PollCollapsible key={poll.id} poll={poll} />
                         ))}

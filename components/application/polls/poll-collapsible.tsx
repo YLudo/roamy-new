@@ -4,9 +4,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Check, ChevronDown, ChevronUp, Users } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 export default function PollCollapsible({ poll }: { poll: IPoll }) {
     const { data: session } = useSession();
@@ -14,7 +15,8 @@ export default function PollCollapsible({ poll }: { poll: IPoll }) {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] = useState<string>("");
     const [showVoters, setShowVoters] = useState<boolean>(false);
-    const { id, title, description, hasVoted, pollOptions } = poll;
+    const { id, title, description, pollOptions } = poll;
+    const [isPending, startTransition] = useTransition();
 
     const getTotalVotes = () => {
         return pollOptions.reduce((sum, option) => sum + option.votes.length, 0)
@@ -39,13 +41,35 @@ export default function PollCollapsible({ poll }: { poll: IPoll }) {
         return null;
     }
 
+    const hasVoted = getUserVote() !== null;
     const userVote = getUserVote();
+
+    const handleVote = () => {
+        if (!selectedOption) return;
+
+        startTransition(async () => {
+            try {
+                const response = await fetch(`/api/travels/${poll.tripId}/polls/${selectedOption}/vote`, {
+                    method: "POST",
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || "Une erreur inconnue s'est produite.");
+                }
+
+                toast.success("Vote ajoutée !", { description: result.message });
+            } catch (error: any) {
+                toast.error("Oups ! ", { description: error.message || "Une erreur s'est produite lors du vote au sondage." });
+            }
+        });
+    }
 
     return (
         <Collapsible
             open={isExpanded}
             onOpenChange={() => setIsExpanded(!isExpanded)}
-            className="border rounded-lg"
+            className="border rounded-lg h-fit"
         >
             <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50">
@@ -90,10 +114,16 @@ export default function PollCollapsible({ poll }: { poll: IPoll }) {
                                 ))}
                             </RadioGroup>
                             <Button
-                                disabled={!selectedOption}
+                                onClick={handleVote}
+                                disabled={!selectedOption || isPending}
                                 className="w-full"
                             >
-                                Voter
+                                {isPending ? (
+                                    <>
+                                        <Loader2 size={20} className="animate-spin" /> &nbsp;
+                                        Chargement...
+                                    </>
+                                ) : "Voter"}
                             </Button>
                         </div>
                     ) : (

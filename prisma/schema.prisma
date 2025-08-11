@@ -232,7 +232,7 @@ enum TaskStatus {
 }
 
 model PlaidItem {
-  id              String         @id @default(cuid())
+  id              String         @id @default(uuid())
   accessToken     String
   itemId          String         @unique
   institutionId   String
@@ -244,7 +244,7 @@ model PlaidItem {
 }
 
 model Poll {
-  id          String       @id @default(cuid())
+  id          String       @id @default(uuid())
   title       String
   description String?
   hasVoted    Boolean      @default(false)
@@ -258,7 +258,7 @@ model Poll {
 }
 
 model PollOption {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   text      String
   votes     Vote[]
   pollId    String
