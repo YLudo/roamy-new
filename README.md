@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Roamy
 
-First, run the development server:
+Roamy est une plateforme web collaborative permettant d'organiser des voyages de groupe : itinéraires, budgets, documents, sondages, et gestion des participants.
+
+## 🚀 Fonctionnalités principales
+
+- Création et gestion de voyages
+- Tableau de bord collaboratif
+- Suivi des dépenses et remboursements
+- Gestion des activités avec carte interactive (Mapbox)
+- Intégration bancaire (Plaid)
+- Sondages et prise de décision
+- Gestion des documents partagés
+- Temps réel avec Pusher / WebSockets
+
+---
+
+## 📦 Prérequis techniques
+
+Avant de lancer le projet, assurez-vous d’avoir installé :
+
+- [Node.js](https://nodejs.org/) (version 20+)
+- npm (inclus avec Node.js)
+- [Docker](https://www.docker.com/) et Docker Compose
+- [Git](https://git-scm.com/)
+
+---
+
+## 🔧 Installation
 
 ```bash
+# 1. Cloner le projet
+git clone https://github.com/YLudo/roamy-new.git
+cd roamy-new
+
+# 2. Installer les dépendances
+npm install
+
+# 3. Lancer PostgreSQL avec Docker
+docker-compose up -d
+
+# 4. Créer un fichier d'environnement
+cp .env.example .env.local
+# → Renseigner vos clés API et paramètres
+
+# 5. Lancer l'application en développement
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Scripts disponibles
+`npm run dev` # Lancer en mode développement
+`npm run build` # Construire pour la production
+`npm run start` # Lancer en production 
+`npm run lint` # Vérifier la qualité du code npm run test  # Lancer les tests unitaires
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📦 Déploiement
 
-To learn more about Next.js, take a look at the following resources:
+Le projet utilise **Vercel** pour le déploiement continu.
+-   **Production** → branche `main`
+-   **Staging** → branche `dev`
+-   **Preview** → toute Pull Request
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Rollback possible directement depuis l’interface Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📜 Licence
+Ce projet est sous licence MIT.
