@@ -1,13 +1,15 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { activityTypeLabels, formatCurrency, formatDateTime } from "@/lib/utils";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Trash2 } from "lucide-react";
 
 interface ActivityCardProps {
     activity: IActivity;
     onClick: () => void;
+    onDelete: (activityId: string) => void;
 }
 
-export default function ActivityCard({ activity, onClick }: ActivityCardProps) {
+export default function ActivityCard({ activity, onClick, onDelete }: ActivityCardProps) {
     return (
         <div className="cursor-pointer hover:bg-muted/50 transition-colors p-4 border rounded-lg" onClick={onClick}>
             <div className="flex items-center justify-between">
@@ -37,11 +39,26 @@ export default function ActivityCard({ activity, onClick }: ActivityCardProps) {
                         </div>
                     </div>
                 </div>
-                {activity.estimatedCost && (
-                    <div className="text-right">
-                        <div className="text-lg font-semibold">{formatCurrency(Number(activity.estimatedCost), activity.currency)}</div>
-                    </div>
-                )}
+                <div className="flex items-center gap-2">
+                    {activity.estimatedCost && (
+                        <div className="text-right">
+                            <div className="text-lg font-semibold">{formatCurrency(Number(activity.estimatedCost), activity.currency)}</div>
+                        </div>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(activity.id);
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        draggable={false}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         </div>
     );

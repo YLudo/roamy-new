@@ -10,6 +10,7 @@ import { pusherClient } from "@/lib/pusher";
 import { useTravelStore } from "@/stores/travel-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ActivityDetails from "./activity-details";
+import { toast } from "sonner";
 
 interface ActivitiesListProps {
     travel: ITravel;
@@ -36,7 +37,34 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
     const handleActivityClick = (activity: IActivity) => {
         setSelectedActivity(activity);
         setIsDetailsOpen(true);
-    }
+    };
+
+    const handleDeleteActivity = async (activityId: string) => {
+        try {
+            const response = await fetch(`/api/travels/${travel.id}/activities/${activityId}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || "Une erreur inconnue s'est produite.");
+            }
+
+            setCurrentTravel({
+                ...travel,
+                activities: travel.activities.filter((activity) => activity.id !== activityId),
+            });
+
+            if (selectedActivity && selectedActivity.id === activityId) {
+                setIsDetailsOpen(false);
+                setSelectedActivity(null);
+            }
+
+            toast.success("Activité supprimée", { description: "L'activité a été supprimée avec succès." });
+        } catch (error: any) {
+            toast.error("Erreur de suppression", { description: error.message || "Une erreur s'est produite lors de la suppression de l'activité." });
+        }
+    };
 
     useEffect(() => {
         if (!travel) return;
@@ -52,11 +80,26 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
             }
         });
 
+        // Gestion de la suppression en temps réel
+        channel.bind("activities:delete", (data: { activityId: string }) => {
+            const current = structuredClone(travel);
+            
+            const filteredActivities = current.activities.filter(activity => activity.id !== data.activityId);
+            
+            setCurrentTravel({ ...current, activities: filteredActivities });
+
+            // Fermer le modal si l'activité supprimée était sélectionnée
+            if (selectedActivity && selectedActivity.id === data.activityId) {
+                setIsDetailsOpen(false);
+                setSelectedActivity(null);
+            }
+        });
+
         return () => {
             pusherClient.unbind_all();
             pusherClient.unsubscribe(`travel-${travel.id}`);
         };
-    }, [setCurrentTravel, travel]);
+    }, [setCurrentTravel, travel, selectedActivity]);
 
     return (
         <>
@@ -80,7 +123,12 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                     {filteredActivities.length > 0 ? (
                         <div className="space-y-4">
                             {filteredActivities.map((activity) => (
-                                <ActivityCard key={activity.id} activity={activity} onClick={() => handleActivityClick(activity)} />
+                                <ActivityCard 
+                                    key={activity.id} 
+                                    activity={activity} 
+                                    onClick={() => handleActivityClick(activity)}
+                                    onDelete={handleDeleteActivity}
+                                />
                             ))}
                         </div>
                     ) : (
@@ -88,7 +136,7 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                             <div className="flex flex-col items-center space-y-2">
                                 <Map className="size-8 text-primary" />
                                 <div className="space-y-2">
-                                    <h3 className="text font-semibold text-foreground">Aucun activité enregistrée</h3>
+                                    <h3 className="text font-semibold text-foreground">Aucune activité enregistrée</h3>
                                     <p className="text-sm text-muted-foreground">Ajoutez une première activité pour commencer l'aventure.</p>
                                 </div>
                             </div>
@@ -101,7 +149,12 @@ export default function ActivitiesList({ travel }: ActivitiesListProps) {
                     <DialogHeader>
                         <DialogTitle>Détails de l'activité</DialogTitle>
                     </DialogHeader>
-                    {selectedActivity && <ActivityDetails activity={selectedActivity} />}
+                    {selectedActivity && (
+                        <ActivityDetails 
+                            activity={selectedActivity} 
+                            onDelete={handleDeleteActivity}
+                        />
+                    )}
                 </DialogContent>
             </Dialog>
         </>

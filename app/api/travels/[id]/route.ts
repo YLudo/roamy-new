@@ -93,7 +93,8 @@ export async function GET(
                             }
                         }
                     }
-                }
+                },
+                documents: true,
             },
         });
 

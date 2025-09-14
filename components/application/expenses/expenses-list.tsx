@@ -8,6 +8,7 @@ import { useTravelStore } from "@/stores/travel-store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ExpenseDetails from "./expense-details";
 import { Euro } from "lucide-react";
+import { toast } from "sonner";
 
 interface ExpensesListProps {
     travel: ITravel;
@@ -39,7 +40,36 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
     const handleExpenseClick = (expense: IExpense) => {
         setSelectedExpense(expense);
         setIsDetailsOpen(true);
-    }
+    };
+
+    const handleDeleteExpense = async (expenseId: string) => {
+        try {
+            const response = await fetch(`/api/travels/${travel.id}/expenses/${expenseId}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || "Une erreur inconnue s'est produite.");
+            }
+
+            // Mise à jour optimiste de l'état local
+            setCurrentTravel({
+                ...travel,
+                expenses: travel.expenses.filter((expense) => expense.id !== expenseId),
+            });
+
+            // Fermer le modal si la dépense supprimée était sélectionnée
+            if (selectedExpense && selectedExpense.id === expenseId) {
+                setIsDetailsOpen(false);
+                setSelectedExpense(null);
+            }
+
+            toast.success("Dépense supprimée", { description: "La dépense a été supprimée avec succès." });
+        } catch (error: any) {
+            toast.error("Erreur de suppression", { description: error.message || "Une erreur s'est produite lors de la suppression de la dépense." });
+        }
+    };
 
     useEffect(() => {
         if (!travel) return;
@@ -66,11 +96,26 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
             });
         });
 
+        // Gestion de la suppression en temps réel
+        channel.bind("expenses:delete", (data: { expenseId: string }) => {
+            const current = structuredClone(travel);
+            
+            const filteredExpenses = current.expenses.filter(expense => expense.id !== data.expenseId);
+            
+            setCurrentTravel({ ...current, expenses: filteredExpenses });
+
+            // Fermer le modal si la dépense supprimée était sélectionnée
+            if (selectedExpense && selectedExpense.id === data.expenseId) {
+                setIsDetailsOpen(false);
+                setSelectedExpense(null);
+            }
+        });
+
         return () => {
             pusherClient.unbind_all();
             pusherClient.unsubscribe(`travel-${travel.id}`);
         };
-    }, [setCurrentTravel, travel]);
+    }, [setCurrentTravel, travel, selectedExpense]);
 
     return (
         <>
@@ -96,7 +141,12 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
                     {filteredExpenses.length > 0 ? (
                         <div className="space-y-4">
                             {filteredExpenses.map((expense) => (
-                                <ExpenseCard key={expense.id} expense={expense} onClick={() => handleExpenseClick(expense)} />
+                                <ExpenseCard 
+                                    key={expense.id} 
+                                    expense={expense} 
+                                    onClick={() => handleExpenseClick(expense)}
+                                    onDelete={handleDeleteExpense}
+                                />
                             ))}
                         </div>
                     ) : (
@@ -117,7 +167,13 @@ export default function ExpensesList({ travel }: ExpensesListProps) {
                     <DialogHeader>
                         <DialogTitle>Détails de la dépense</DialogTitle>
                     </DialogHeader>
-                    {selectedExpense && <ExpenseDetails expense={selectedExpense} onClose={() => setIsDetailsOpen(false)} />}
+                    {selectedExpense && (
+                        <ExpenseDetails 
+                            expense={selectedExpense} 
+                            onClose={() => setIsDetailsOpen(false)} 
+                            onDelete={handleDeleteExpense}
+                        />
+                    )}
                 </DialogContent>
             </Dialog>
         </>

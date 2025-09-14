@@ -25,7 +25,7 @@ export default function BankTransactions({ transactions, isLoading }: BankTransa
         return <Skeleton className="w-full h-[300px] rounded-xl" />
     }
 
-    if (transactions.length <= 0) {
+    if (!transactions || transactions.length <= 0) {
         return (
             <div className="lg:col-span-2 mt-4 h-fit text-center py-8 bg-muted rounded-lg">
                 <p className="text-muted-foreground">Aucune transactions disponible !</p>

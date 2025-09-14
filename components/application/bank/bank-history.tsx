@@ -34,7 +34,7 @@ export default function BankHistory() {
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [fetchTransactions]);
 
     return (
         <Card>

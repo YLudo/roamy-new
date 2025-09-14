@@ -7,6 +7,8 @@ import { useTravelStore } from "@/stores/travel-store";
 import { useEffect } from "react";
 import TaskAddForm from "./task-add-form";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface TasksLayoutProps {
     travel: ITravel;
@@ -57,6 +59,28 @@ export default function TasksLayout({ travel }: TasksLayoutProps) {
         }
     };
 
+    const handleDeleteTask = async (taskId: string) => {
+        try {
+            const response = await fetch(`/api/travels/${travel.id}/tasks/${taskId}`, {
+                method: "DELETE",
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || "Une erreur inconnue s'est produite.");
+            }
+
+            setCurrentTravel({
+                ...travel,
+                tasks: travel.tasks.filter((task) => task.id !== taskId),
+            });
+
+            toast.success("Tâche supprimée !", { description: "La tâche a été supprimée avec succès." });
+        } catch (error: any) {
+            toast.error("Oups !", { description: error.message || "Une erreur s'est produite lors de la suppression de la tâche." });
+        }
+    };
+
     useEffect(() => {
         if (!travel) return;
 
@@ -79,6 +103,14 @@ export default function TasksLayout({ travel }: TasksLayoutProps) {
             );
 
             setCurrentTravel({ ...current, tasks: updatedTasks });
+        });
+
+        channel.bind("tasks:delete", (data: { taskId: string }) => {
+            const current = structuredClone(travel);
+            
+            const filteredTasks = current.tasks.filter(task => task.id !== data.taskId);
+            
+            setCurrentTravel({ ...current, tasks: filteredTasks });
         });
 
         return () => {
@@ -112,10 +144,26 @@ export default function TasksLayout({ travel }: TasksLayoutProps) {
                                             parent={task.status}
                                         >
                                             <div className="flex flex-col gap-1">
-                                                <p className="m-0 flex-1 font-medium text-sm">{task.title}</p>
-                                                {task.description && (
-                                                    <p className="m-0 text-muted-foreground text-xs">{task.description}</p>
-                                                )}
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="flex-1">
+                                                        <p className="m-0 font-medium text-sm">{task.title}</p>
+                                                        {task.description && (
+                                                            <p className="m-0 text-muted-foreground text-xs mt-1">{task.description}</p>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            handleDeleteTask(task.id);
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </KanbanCard>
                                     ))

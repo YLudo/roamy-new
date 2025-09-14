@@ -83,6 +83,7 @@ model Trip {
   activities   Activity[]
   tasks        Task[]
   polls        Poll[]
+  documents    Document[]
 }
 
 enum TripStatus {
@@ -232,15 +233,15 @@ enum TaskStatus {
 }
 
 model PlaidItem {
-  id              String         @id @default(uuid())
+  id              String   @id @default(uuid())
   accessToken     String
-  itemId          String         @unique
+  itemId          String   @unique
   institutionId   String
   institutionName String
   userId          String
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Poll {
@@ -275,4 +276,15 @@ model Vote {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  isImportant Boolean  @default(false)
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import ActivitiesMap from "@/components/application/activities/activities-map";
 import ActivitiesTotal from "@/components/application/activities/activities-total";
 import ExpensesTotal from "@/components/application/expenses/expenses-total";
 import TripCard from "@/components/application/trips/trip-card";
@@ -24,9 +25,12 @@ export default function TravelDashboardPage() {
                 <TripCard trip={currentTravel} />
                 <TripParticipants travelId={currentTravel.id} participants={currentTravel.participants} />
             </div>
-            <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <ActivitiesTotal activities={currentTravel.activities} />
-                <ExpensesTotal expenses={currentTravel.expenses} />
+            <div className="lg:col-span-2 grid gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <ActivitiesTotal activities={currentTravel.activities} />
+                    <ExpensesTotal expenses={currentTravel.expenses} />
+                </div>
+                <ActivitiesMap activities={currentTravel.activities} />
             </div>
         </div>
     );

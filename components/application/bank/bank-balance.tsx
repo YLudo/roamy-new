@@ -6,8 +6,6 @@ export default function BankBalance({ accounts, isLoading }) {
         return <Skeleton className="w-full h-[150px] rounded-xl" />
     }
 
-    console.log(accounts);
-
     const totalBalance = accounts.reduce((sum, account) => sum + (account.balances.current || 0), 0);
 
     const formattedBalance = new Intl.NumberFormat('fr-FR', {

@@ -26,6 +26,7 @@ interface ITravel {
     activities: IActivity[];
     tasks: ITask[];
     polls: IPoll[];
+    documents: IDocument[];
 }
 
 interface IParticipant {
@@ -184,4 +185,14 @@ interface IVote {
 
     pollOption: IPollOption;
     user: IUser;
+}
+
+interface IDocument {
+  id: string;
+  title: string;
+  description?: string;
+  isImportant: boolean;
+  tripId: string;
+  createdAt: string;
+  updatedAt: string;
 }
